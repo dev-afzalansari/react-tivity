@@ -8,9 +8,27 @@ interface Storage {
   removeItem: (key: string) => Promise<unknown>;
 }
 
+interface NoopStorage {
+  setItem: () => void,
+  getItem: () => void,
+  removeItem: () => void,
+}
+
+const noop = (): NoopStorage => ({
+  getItem: () => {},
+  setItem: () => {},
+  removeItem: () => {}
+})
+
 /* global Promise */
-export default function initStorage(type: StorageType): Storage {
-  const storage: any = window[(type + "Storage") as any];
+export default function initStorage(type: StorageType): Storage | NoopStorage {
+  let storage: any
+
+  if(window && typeof window === 'object') {
+    storage = window[(type + "Storage") as any];
+  } else {
+    return noop()
+  }
 
   return {
     setItem: (key: string, value: StateObj) =>
