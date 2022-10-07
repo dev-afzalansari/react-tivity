@@ -14,6 +14,7 @@ interface NoopStorage {
   removeItem: () => void,
 }
 
+/* eslint-disable @typescript-eslint/no-empty-function */
 const noop = (): NoopStorage => ({
   getItem: () => {},
   setItem: () => {},

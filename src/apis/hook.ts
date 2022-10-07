@@ -1,5 +1,5 @@
 import { useSyncExternalStoreWithSelector } from "../uSES";
-import initStore, { StateCopy, StateObj } from "../inits/initStore";
+import initStore, { StateObj } from "../inits/initStore";
 
 export default function hook(hookFn: any) {
   const store = initStore({});
@@ -17,6 +17,7 @@ export default function hook(hookFn: any) {
       state.set(obj, false);
     }
 
+    /* eslint-disable @typescript-eslint/no-empty-function */
     let equalitFn: any = () => {};
     useSyncExternalStoreWithSelector(
       store.subscribe,

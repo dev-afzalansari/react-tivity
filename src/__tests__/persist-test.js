@@ -4,6 +4,7 @@ import { render, fireEvent } from "@testing-library/react";
 import { persist } from "..";
 import initStorage from '../inits/initStorage'
 
+/* global Promise */
 describe("persist tests", () => {
   let initObj = (storage) => ({
     count: 0,
