@@ -2,7 +2,7 @@ import React from "react";
 import { render, fireEvent } from "@testing-library/react";
 
 import { persist } from "..";
-import initStorage from '../inits/initStorage'
+import initStorage from "../inits/initStorage";
 
 /* global Promise */
 describe("persist tests", () => {
@@ -485,10 +485,10 @@ it("migrate on version mismatch", async () => {
   });
 });
 
-test('falls back to noop storage if window is undefined', () => {
-  let storage = initStorage('local')
+test("falls back to noop storage if window is undefined", () => {
+  let storage = initStorage("local");
 
-  expect(storage.getItem()).toBeUndefined()
-  expect(storage.setItem()).toBeUndefined()
-  expect(storage.removeItem()).toBeUndefined()
-})
+  expect(storage.getItem()).toBeUndefined();
+  expect(storage.setItem()).toBeUndefined();
+  expect(storage.removeItem()).toBeUndefined();
+});

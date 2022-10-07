@@ -1,12 +1,14 @@
 {
   "name": "react-tivity",
-  "version": "0.0.0-dev",
-  "main": "./dist/index.js",
+  "version": "0.0.1-dev",
+  "description": "State solution for React",
   "private": true,
+  "main": "./dist/index.js",
   "files": [
     "dist/",
     "README.md",
-    "package.json"
+    "package.json",
+    "LICENSE"
   ],
   "exports": {
     "./package.json": "./package.json",
@@ -53,5 +55,22 @@
     "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",
     "typescript": "^4.8.4"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0"
+  },
+  "keywords": [
+    "state",
+    "manager",
+    "react"
+  ],
+  "homepage": "https://github.com/dev-afzalansari/react-tivity",
+  "bugs": {
+    "url": "https://github.com/dev-afzalansari/react-tivity/issues"
+  },
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dev-afzalansari/react-tivity.git"
   }
 }

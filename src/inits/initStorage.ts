@@ -9,31 +9,31 @@ interface Storage {
 }
 
 interface NoopStorage {
-  setItem: () => void,
-  getItem: () => void,
-  removeItem: () => void,
+  setItem: () => void;
+  getItem: () => void;
+  removeItem: () => void;
 }
 
 /* eslint-disable @typescript-eslint/no-empty-function */
 const noop = (): NoopStorage => ({
   getItem: () => {},
   setItem: () => {},
-  removeItem: () => {}
-})
+  removeItem: () => {},
+});
 
 /* global Promise */
 export default function initStorage(type: StorageType): Storage | NoopStorage {
-  let storage: any
+  let storage: any;
 
   try {
-    if(process.env.NODE_ENV === 'test') throw Error()
-    if(window && typeof window === 'object') {
+    if (process.env.NODE_ENV === "test") throw Error();
+    if (window && typeof window === "object") {
       storage = window[(type + "Storage") as any];
     } else {
-      return noop()
+      return noop();
     }
-  } catch(_err) {
-    return noop()
+  } catch (_err) {
+    return noop();
   }
 
   return {

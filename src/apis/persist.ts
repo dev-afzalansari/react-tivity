@@ -79,7 +79,10 @@ export default function persist(argA: StateObj | Reducer, argB: StateObj) {
     let currentState: StateObj = JSON.parse(JSON.stringify(state));
     let toSet: StateObj;
 
-    if (typeof persistedState.version !== 'undefined' && persistedState.version !== config.version) {
+    if (
+      typeof persistedState.version !== "undefined" &&
+      persistedState.version !== config.version
+    ) {
       toSet = config.migrate(currentState, persistedState);
       Object.keys(toSet).forEach((key) => {
         if (typeof persistedState[key] !== "undefined") {
