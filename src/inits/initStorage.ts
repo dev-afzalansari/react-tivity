@@ -24,9 +24,14 @@ const noop = (): NoopStorage => ({
 export default function initStorage(type: StorageType): Storage | NoopStorage {
   let storage: any
 
-  if(window && typeof window === 'object') {
-    storage = window[(type + "Storage") as any];
-  } else {
+  try {
+    if(process.env.NODE_ENV === 'test') throw Error()
+    if(window && typeof window === 'object') {
+      storage = window[(type + "Storage") as any];
+    } else {
+      return noop()
+    }
+  } catch(_err) {
     return noop()
   }
 
