@@ -56,7 +56,7 @@ function umdConfig(file, env) {
     output: [
       {
         file: `dist/umd/${file}.${env}.js`,
-        name: "beta-react-state-library",
+        name: "react-tivity",
         format: "umd",
         globals: {
           "use-sync-external-store/shim/with-selector":
