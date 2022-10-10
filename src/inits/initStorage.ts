@@ -30,11 +30,15 @@ export default function initStorage(type: StorageType): Storage | NoopStorage {
     if (window && typeof window === "object") {
       storage = window[(type + "Storage") as any];
     } else {
-      console.warn(`[react-tivity] window undefined failed to build ${type}Storage falling back to noopStorage`)
+      console.warn(
+        `[react-tivity] window undefined failed to build ${type}Storage falling back to noopStorage`
+      );
       return noop();
     }
   } catch (_err) {
-    console.warn(`[react-tivity] window undefined failed to build ${type}Storage falling back to noopStorage`)
+    console.warn(
+      `[react-tivity] window undefined failed to build ${type}Storage falling back to noopStorage`
+    );
     return noop();
   }
 

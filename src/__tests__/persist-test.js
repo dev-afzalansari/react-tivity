@@ -485,22 +485,22 @@ it("migrate on version mismatch", async () => {
   });
 });
 
-describe('Internal storage tests', () => {
-
+describe("Internal storage tests", () => {
   test("falls back to noop storage if window is undefined", () => {
     let storage = initStorage("local");
-  
+
     expect(storage.getItem()).toBeUndefined();
     expect(storage.setItem()).toBeUndefined();
     expect(storage.removeItem()).toBeUndefined();
   });
 
-  test('logs warning if internal storage fails to init', () => {
-    let warnSpy = jest.spyOn(console, 'warn')
-    let storage = initStorage('local')
+  test("logs warning if internal storage fails to init", () => {
+    let warnSpy = jest.spyOn(console, "warn");
+    initStorage("local");
 
-    expect(warnSpy).toHaveBeenCalled()
-    expect(warnSpy).toHaveBeenCalledWith('[react-tivity] window undefined failed to build localStorage falling back to noopStorage')
-  })
-
-})
+    expect(warnSpy).toHaveBeenCalled();
+    expect(warnSpy).toHaveBeenCalledWith(
+      "[react-tivity] window undefined failed to build localStorage falling back to noopStorage"
+    );
+  });
+});

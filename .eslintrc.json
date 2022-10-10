@@ -26,7 +26,7 @@
   "rules": {
     "eqeqeq": "error",
     "no-unused-vars": "off",
-    "no-console": ["error", { "allow": ["warn"] }],
+    "no-console": "off",
     "react/prop-types": "off",
     "jest/prefer-expect-assertions": "off",
     "jest/expect-expect": "off",
