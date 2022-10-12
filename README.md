@@ -2,6 +2,13 @@
 
 **State solution for React**
 
+<div>
+  <span><a href='https://npmjs.com/package/react-tivity'><img src='https://badgen.net/badge/icon/npm?icon=npm&label' /></a></span>
+  <span><a href='https://npmjs.com/package/react-tivity'><img src='https://badgen.net/npm/v/react-tivity' /></a></span>
+  <span><a href='https://bundlephobia.com/package/react-tivity@0.1.0'><img src='https://badgen.net/bundlephobia/minzip/react-tivity' /></a></span>
+  <span><a href='https://github.com/dev-afzalansari/react-tivity/blob/main/LICENSE'><img src='https://badgen.net/npm/license/react-tivity' /></a></span>
+</div>
+
 ## Installation
 
 ### npm
