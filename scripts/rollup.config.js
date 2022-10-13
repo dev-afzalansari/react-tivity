@@ -83,7 +83,7 @@ export default function () {
   return [
     esmConfig("index"),
     cjsConfig("index"),
-    ...(exposeUMD ? umdConfig("index", "development") : {}),
-    ...(exposeUMD ? umdConfig("index", "production") : {}),
+    ...(exposeUMD ? umdConfig("index", "development") : []),
+    ...(exposeUMD ? umdConfig("index", "production") : []),
   ];
 }
