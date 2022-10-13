@@ -5,6 +5,6 @@ const babelConfig = {
     "@babel/preset-react",
     "@babel/preset-typescript",
   ],
-};
+}
 
-module.exports = babelConfig;
+module.exports = babelConfig

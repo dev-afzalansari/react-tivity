@@ -1,14 +1,14 @@
-import babel from "@rollup/plugin-babel";
-import { terser } from "rollup-plugin-terser";
-import typescript from "@rollup/plugin-typescript";
-import nodeResolve from "@rollup/plugin-node-resolve";
-import commonjs from "@rollup/plugin-commonjs";
+import babel from "@rollup/plugin-babel"
+import { terser } from "rollup-plugin-terser"
+import typescript from "@rollup/plugin-typescript"
+import nodeResolve from "@rollup/plugin-node-resolve"
+import commonjs from "@rollup/plugin-commonjs"
 
-const babelConfig = require("./babel");
+const babelConfig = require("./babel")
 
 const isExternal = function (id) {
-  return id.startsWith("use-sync-external-store");
-};
+  return id.startsWith("use-sync-external-store")
+}
 
 function esmConfig(file) {
   return {
@@ -25,7 +25,7 @@ function esmConfig(file) {
     ],
     external: isExternal,
     plugins: [nodeResolve({ extensions: [".ts", ".js"] }), typescript()],
-  };
+  }
 }
 
 function cjsConfig(file) {
@@ -47,7 +47,7 @@ function cjsConfig(file) {
         babelHelpers: "bundled",
       }),
     ],
-  };
+  }
 }
 
 function umdConfig(file, env) {
@@ -74,7 +74,7 @@ function umdConfig(file, env) {
       }),
       ...(env === "development" ? [] : [terser()]),
     ],
-  };
+  }
 }
 
 let exposeUMD = false
@@ -85,5 +85,5 @@ export default function () {
     cjsConfig("index"),
     ...(exposeUMD ? umdConfig("index", "development") : []),
     ...(exposeUMD ? umdConfig("index", "production") : []),
-  ];
+  ]
 }
