@@ -25,20 +25,25 @@ const noop = (): NoopStorage => ({
 export default function initStorage(type: StorageType): Storage | NoopStorage {
   let storage: any;
 
-  try {
-    if (process.env.NODE_ENV === "test") throw Error();
-    if (window && typeof window === "object") {
-      storage = window[(type + "Storage") as any];
-    } else {
+  let env = process.env.NODE_ENV
+  const warn = () => {
+    if(env !== 'production') {
       console.warn(
         `[react-tivity] window undefined failed to build ${type}Storage falling back to noopStorage`
       );
+    }
+  }
+
+  try {
+    if (env === "test") throw Error();
+    if (window && typeof window === "object") {
+      storage = window[(type + "Storage") as any];
+    } else {
+      warn()
       return noop();
     }
   } catch (_err) {
-    console.warn(
-      `[react-tivity] window undefined failed to build ${type}Storage falling back to noopStorage`
-    );
+    warn()
     return noop();
   }
 
