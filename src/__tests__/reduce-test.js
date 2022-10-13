@@ -102,3 +102,18 @@ describe("reduce tests", () => {
     expect(state.get().title).toBe("nothing");
   });
 });
+
+test("throws an error when passed methods", () => {
+  expect.assertions(1);
+
+  try {
+    reduce(() => ({}), {
+      state: false,
+      setState: () => ({ state: true }),
+    });
+  } catch (err) {
+    expect(err.message).toBe(
+      "[react-tivity] reduce does not accepts object methods"
+    );
+  }
+});

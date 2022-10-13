@@ -485,6 +485,24 @@ it("migrate on version mismatch", async () => {
   });
 });
 
+test("throws an error when passed methods in persist used as reduce", () => {
+  expect.assertions(1);
+
+  try {
+    persist(() => ({}), {
+      state: false,
+      setState: () => ({ state: true }),
+      config: {
+        key: "@key",
+      },
+    });
+  } catch (err) {
+    expect(err.message).toBe(
+      "[react-tivity] reduce does not accepts object methods"
+    );
+  }
+});
+
 describe("Internal storage tests", () => {
   test("falls back to noop storage if window is undefined", () => {
     let storage = initStorage("local");

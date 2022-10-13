@@ -13,10 +13,16 @@ export default function persist(argA: StateObj | Reducer, argB: StateObj) {
   let initObj = typeof arg === "function" ? arg() : arg;
 
   if (reducer && typeof reducer === "function") {
-    let isValidObj = Object.keys(initObj).some(
+    let isValidObj = Object.keys(initObj).every(
       (key) => typeof initObj[key] !== "function"
     );
-    if (!isValidObj) return;
+    if (!isValidObj) {
+      if (process.env.NODE_ENV !== "production") {
+        throw new Error(
+          "[react-tivity] reduce does not accepts object methods"
+        );
+      }
+    }
   }
 
   let storageType = initObj.config.storage || "local";
