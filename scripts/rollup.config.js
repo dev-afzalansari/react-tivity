@@ -77,11 +77,13 @@ function umdConfig(file, env) {
   };
 }
 
+let exposeUMD = false
+
 export default function () {
   return [
     esmConfig("index"),
     cjsConfig("index"),
-    umdConfig("index", "development"),
-    umdConfig("index", "production"),
+    ...(exposeUMD ? umdConfig("index", "development") : {}),
+    ...(exposeUMD ? umdConfig("index", "production") : {}),
   ];
 }
