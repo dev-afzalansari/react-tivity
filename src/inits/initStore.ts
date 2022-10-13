@@ -4,12 +4,12 @@ export interface StateObj {
 
 export interface StateCopy extends StateObj {
   set: (nextState: object, render?: boolean | undefined) => void;
-  get: () => StateObj;
+  get: (key: string) => StateObj | any;
 }
 
 export interface TempStateCopy extends StateObj {
   set?: (nextState: object, render?: boolean | undefined) => void;
-  get?: () => StateObj;
+  get?: (key: string) => StateObj | any;
 }
 
 export type Initializer = () => StateObj;
@@ -36,7 +36,8 @@ export default function initStore(initObj: StateObj) {
     let stateCopy: StateCopy = Object.assign({}, initStateCopy(), {
       set: (nextState: object, render: boolean | undefined) =>
         setStateImpl(nextState, render),
-      get: initStateCopy,
+      get: (key: string) =>
+        typeof key === "string" ? initStateCopy()[key] : initStateCopy(),
     });
 
     Object.keys(state).forEach((key) => {

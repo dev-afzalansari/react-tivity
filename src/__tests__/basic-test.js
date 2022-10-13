@@ -137,16 +137,23 @@ describe("tests with store apis", () => {
   test("can get access to state object", async () => {
     let state = useStore.state;
 
-    expect(state.count).toBe(0);
-    expect(state.title).toBe("nothing");
+    expect(state.get("count")).toBe(0);
+    expect(state.get("title")).toBe("nothing");
+
     state.inc();
-    expect(state.get().count).toBe(1);
+
+    expect(state.get("count")).toBe(1);
+
     state.dec();
     state.dec();
-    expect(state.get().count).toBe(-1);
+
+    expect(state.get("count")).toBe(-1);
 
     state.set({ count: 10 });
+    state.set({ title: "something" });
+
     expect(state.get().count).toBe(10);
+    expect(state.get().title).toBe("something");
   });
 
   test("can register a callback", () => {
@@ -159,7 +166,7 @@ describe("tests with store apis", () => {
     expect(mockCb).toHaveBeenCalled();
   });
 
-  test("accets initializer function which returns object", () => {
+  test("accepts initializer function which returns object", () => {
     let useTestStore = create(initObj);
     let state = useTestStore.state;
 
