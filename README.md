@@ -23,13 +23,13 @@ npm i react-tivity
 yarn add react-tivity
 ```
 
-## Exports
+# Exports
 
 * [create](#create)
 * [reduce](#reduce)
 * [persist](#persist)
 
-## `create`
+# `create`
 
 `create` takes an `object` or `initializer` and returns a hook to be used in components.
 
@@ -118,7 +118,7 @@ let unsubscribe = useCount.subscribe(callback)  // will log 'count changed' ever
 unsubscribe()
 ```
 
-## `reduce`
+# `reduce`
 
 `reduce` takes a `reducer` function as first argument and `object` or `initializer` which returns an `object` as second argument.
 You can pass your state `object` without any method and retrieve dispatch function assigned to `hook` itself as method.
@@ -177,7 +177,7 @@ dispatch({ type: 'inc'})
 dispatch({ type: 'dec'})
 ```
 
-## `persist`
+# `persist`
 
 `persist` works same as `create` if only one argument is passed if passed two arguments first `reducer` and second `object` it acts as reduce.
 It takes an additional property `config` which won't be saved as a state value.
@@ -259,3 +259,19 @@ Some **apis** are assigned to the hook and can be used in or outside of react co
 let persist = useCount.persist // or just useCount.persist.clearStorage()
 persist.clearStorage()    // clears the storage assigned to useCount
 ```
+
+# `EqualityFn`
+
+Hook created from any api accepts a second argument too. A `EqualityFn` can be passed to the hook to test certain conditions
+and avoid unnecessary rerendering for example `useCount` hook from above examples.
+
+```javascript
+function Component() {
+  let count = useCount('count', (prevCount, nextCount) => nextCount === 2)  // will not update the component if nextCount is 2
+  
+  return <h1>{count}</h1>
+}
+```
+
+# License
+Licensed under [MIT License](https://github.com/dev-afzalansari/react-tivity/blob/main/LICENSE)
