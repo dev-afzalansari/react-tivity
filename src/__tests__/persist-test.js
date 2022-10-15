@@ -357,7 +357,7 @@ test("internal _status state value returns correct value", async () => {
   function Wrapper({ children }) {
     let { _status } = usePost()
 
-    if (_status === null) {
+    if (_status === false) {
       return <h1>Loading....</h1>
     }
 
@@ -374,6 +374,7 @@ test("internal _status state value returns correct value", async () => {
   expect(loader).toBeVisible()
   await findByText("10")
   await findByText("5")
+  expect(loader).not.toBeVisible()
 })
 
 test("omits blacklisted state keys", async () => {

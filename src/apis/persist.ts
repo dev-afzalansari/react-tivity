@@ -41,12 +41,12 @@ export default function persist(argA: StateObj | Reducer, argB: StateObj) {
   }
 
   delete initObj.config
-  initObj._status = null
+  initObj._status = false
 
   const store = initStore(initObj)
   const state = store.createStateCopy()
 
-  const hydrateStorage = async () => {
+  const hydrateStore = async () => {
     try {
       let savedState = await config.storage.getItem(config.key)
       if (savedState) {
@@ -71,12 +71,12 @@ export default function persist(argA: StateObj | Reducer, argB: StateObj) {
     await config.storage.setItem(config.key, value)
   }
 
-  hydrateStorage().then((persistedState: StateObj | null | undefined) => {
+  hydrateStore().then((persistedState: StateObj | null | undefined) => {
     let state: StateCopy = store.createStateCopy()
 
     if (!persistedState) {
       saveToStorage()
-      state.set({ _status: false })
+      state.set({ _status: true })
       return
     }
 
