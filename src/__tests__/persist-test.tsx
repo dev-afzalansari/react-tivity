@@ -1,25 +1,32 @@
 import React from "react"
 import { render, fireEvent } from "@testing-library/react"
 
-import { persist } from ".."
-import initStorage from "../inits/initStorage"
+import { persist } from '..'
+import initStorage, { Storage } from "../inits/initStorage"
+import { StateCopy, StateObj } from '../inits/initStore'
+
+export interface TempStorage {
+  setItem?: (key: string, value: StateObj) => Promise<unknown>
+  getItem?: (key: string) => Promise<unknown>
+  removeItem?: (key: string) => Promise<unknown>
+}
 
 /* global Promise */
 describe("persist tests", () => {
-  let initObj = (storage) => ({
+  let initObj = (storage: Storage) => ({
     count: 0,
-    inc: (state) => ({ count: state.count + 1 }),
-    dec: (state) => state.set({ count: state.count - 1 }),
+    inc: (state: StateCopy) => ({ count: state.count + 1 }),
+    dec: (state: StateCopy) => state.set({ count: state.count - 1 }),
     title: "nothing",
-    setTitle: (_state, newTitle) => ({ title: newTitle }),
+    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle }),
     config: {
       key: "@key",
       storage: storage,
     },
   })
 
-  let initStorage = () => {
-    let items = {}
+  let initStorage = (): Storage => {
+    let items: StateObj = {}
     return {
       getItem: (key) =>
         new Promise((resolve) => {
@@ -38,8 +45,8 @@ describe("persist tests", () => {
     }
   }
 
-  let storage = null
-  let useStore = null
+  let storage: any
+  let useStore: any
 
   beforeEach(() => {
     storage = initStorage()
@@ -118,7 +125,7 @@ describe("persist tests", () => {
   })
 
   test("accepts initializer function", () => {
-    let useTestStore = persist(initObj)
+    let useTestStore: any = persist(initObj)
     let state = useTestStore.state
 
     expect(state.get().count).toBe(0)
@@ -127,7 +134,7 @@ describe("persist tests", () => {
 })
 
 describe("persist tests with reducer", () => {
-  let initObj = (storage) => ({
+  let initObj = (storage: Storage) => ({
     count: 0,
     title: "nothing",
     config: {
@@ -136,7 +143,7 @@ describe("persist tests with reducer", () => {
     },
   })
 
-  function reducer(state, action) {
+  function reducer(state: StateObj, action: any) {
     switch (action.type) {
       case "inc":
         return {
@@ -154,8 +161,8 @@ describe("persist tests with reducer", () => {
     throw Error("unknown action")
   }
 
-  let initStorage = () => {
-    let items = {}
+  let initStorage = (): Storage => {
+    let items: StateObj = {}
     return {
       getItem: (key) =>
         new Promise((resolve) => {
@@ -174,8 +181,8 @@ describe("persist tests with reducer", () => {
     }
   }
 
-  let storage = null
-  let useStore = null
+  let storage: any
+  let useStore: any
 
   beforeEach(() => {
     storage = initStorage()
@@ -258,7 +265,7 @@ describe("persist tests with reducer", () => {
   })
 
   test("accepts initializer function", () => {
-    let useTestStore = persist(reducer, initObj)
+    let useTestStore: any = persist(reducer, initObj)
     let state = useTestStore.state
 
     expect(state.get().count).toBe(0)
@@ -267,14 +274,14 @@ describe("persist tests with reducer", () => {
 })
 
 test("hydrates the state", async () => {
-  let state = {
+  let state: StateObj = {
     "@post": JSON.stringify({
       views: 10,
       likes: 5,
       version: 0,
     }),
   }
-  let storage = {
+  let storage: TempStorage = {
     getItem: (key) =>
       new Promise((resolve) => {
         resolve(state[key])
@@ -315,14 +322,14 @@ test("hydrates the state", async () => {
 })
 
 test("internal _status state value returns correct value", async () => {
-  let state = {
+  let state: StateObj = {
     "@post": JSON.stringify({
       views: 10,
       likes: 5,
       version: 0,
     }),
   }
-  let storage = {
+  let storage: TempStorage = {
     getItem: (key) =>
       new Promise((resolve) => {
         resolve(state[key])
@@ -354,7 +361,7 @@ test("internal _status state value returns correct value", async () => {
     )
   }
 
-  function Wrapper({ children }) {
+  function Wrapper({ children }: { children: any}) {
     let { _status } = usePost()
 
     if (_status === false) {
@@ -378,8 +385,8 @@ test("internal _status state value returns correct value", async () => {
 })
 
 test("omits blacklisted state keys", async () => {
-  let state = {}
-  let storage = {
+  let state: StateObj = {}
+  let storage: TempStorage = {
     getItem: (key) =>
       new Promise((resolve) => {
         resolve(state[key])
@@ -417,7 +424,7 @@ test("omits blacklisted state keys", async () => {
   await findByText("10")
   await findByText("5")
 
-  let deserialized = JSON.parse(await storage.getItem("@post"))
+  let deserialized: StateObj = storage.getItem ? JSON.parse((await storage.getItem("@post") as string)) : {}
   expect(deserialized).toEqual({
     views: 10,
     version: 0,
@@ -425,14 +432,14 @@ test("omits blacklisted state keys", async () => {
 })
 
 it("migrate on version mismatch", async () => {
-  let state = {
+  let state: StateObj = {
     "@post": JSON.stringify({
       views: 10,
       likes: 5,
       version: 0,
     }),
   }
-  let storage = {
+  let storage: TempStorage = {
     getItem: (key) =>
       new Promise((resolve) => {
         resolve(state[key])
@@ -451,7 +458,7 @@ it("migrate on version mismatch", async () => {
       key: "@post",
       storage: storage,
       version: 1,
-      migrate: (current, previous) => {
+      migrate: (current: StateObj, previous: StateObj) => {
         if (previous.version === 0) {
           current.upvotes = previous.likes
           return current
@@ -478,7 +485,7 @@ it("migrate on version mismatch", async () => {
   await findByText("5")
   await findByText("10")
 
-  let deserialized = JSON.parse(await storage.getItem("@post"))
+  let deserialized: StateObj = storage.getItem ? JSON.parse((await storage.getItem("@post") as string)) : {}
   expect(deserialized).toEqual({
     views: 10,
     upvotes: 5,
@@ -497,7 +504,7 @@ test("throws an error when passed methods in persist used as reduce", () => {
         key: "@key",
       },
     })
-  } catch (err) {
+  } catch (err: any) {
     expect(err.message).toBe(
       "[react-tivity] reduce does not accepts object methods"
     )
@@ -508,9 +515,9 @@ describe("Internal storage tests", () => {
   test("falls back to noop storage if window is undefined", () => {
     let storage = initStorage("local")
 
-    expect(storage.getItem()).toBeUndefined()
-    expect(storage.setItem()).toBeUndefined()
-    expect(storage.removeItem()).toBeUndefined()
+    expect(storage.getItem('')).toBeUndefined()
+    expect(storage.setItem('', {})).toBeUndefined()
+    expect(storage.removeItem('')).toBeUndefined()
   })
 
   test("logs warning if internal storage fails to init", () => {

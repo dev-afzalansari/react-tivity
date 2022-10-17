@@ -2,6 +2,7 @@ import React from "react"
 import { render, fireEvent } from "@testing-library/react"
 
 import { reduce } from ".."
+import { StateObj } from '../inits/initStore'
 
 describe("reduce tests", () => {
   let initObj = () => ({
@@ -9,7 +10,7 @@ describe("reduce tests", () => {
     title: "nothing",
   })
 
-  function reducer(state, action) {
+  function reducer(state: StateObj, action: any) {
     switch (action.type) {
       case "inc":
         return {
@@ -27,7 +28,7 @@ describe("reduce tests", () => {
     throw Error("unknow action", action.type)
   }
 
-  let useStore = null
+  let useStore: any
 
   beforeEach(() => {
     useStore = reduce(reducer, initObj())
@@ -39,7 +40,7 @@ describe("reduce tests", () => {
 
   test("selector returns the selected state", async () => {
     function Component() {
-      let count = useStore((state) => state.count)
+      let count = useStore((state: StateObj) => state.count)
       let title = useStore("title")
 
       return (
@@ -95,7 +96,7 @@ describe("reduce tests", () => {
   })
 
   test("accepts initializer function", () => {
-    let useTestStore = reduce(reducer, initObj)
+    let useTestStore: any = reduce(reducer, initObj)
     let state = useTestStore.state
 
     expect(state.get().count).toBe(0)
@@ -111,7 +112,7 @@ test("throws an error when passed methods", () => {
       state: false,
       setState: () => ({ state: true }),
     })
-  } catch (err) {
+  } catch (err: any) {
     expect(err.message).toBe(
       "[react-tivity] reduce does not accepts object methods"
     )

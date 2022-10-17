@@ -14,6 +14,8 @@ export interface TempStateCopy extends StateObj {
 
 export type Initializer = () => StateObj
 
+export type Hook = (selector?: ((s: StateObj) => StateObj) | undefined, equalityFn?: any) => StateObj
+
 export default function initStore(initObj: StateObj) {
   /* eslint-disable-next-line */
   const subscribers = new Set()

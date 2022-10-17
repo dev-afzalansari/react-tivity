@@ -2,7 +2,7 @@ import type { StateObj } from "./initStore"
 
 type StorageType = "local" | "session"
 
-interface Storage {
+export interface Storage {
   setItem: (key: string, value: StateObj) => Promise<unknown>
   getItem: (key: string) => Promise<unknown>
   removeItem: (key: string) => Promise<unknown>

@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es2016",
+    "target": "ESNext",
     "strict": true,
     "jsx": "react",
     "moduleResolution": "Node",
@@ -9,5 +9,5 @@
     "baseUrl": "."
   },
   "include": ["src/**/*"],
-  "exclude": ["node_modules", "src/__tests__"]
+  "exclude": ["node_modules"]
 }

@@ -1,13 +1,13 @@
 import { useSyncExternalStoreWithSelector } from "../uSES"
 import initStore from "../inits/initStore"
 
-import { StateObj, Initializer } from "../inits/initStore"
+import { StateObj, Initializer, Hook } from "../inits/initStore"
 
 export default function create(arg: StateObj | Initializer) {
   let initObj: StateObj = typeof arg === "function" ? arg() : arg
   let store = initStore(initObj)
 
-  let hook = (selector = (s: StateObj) => s, equalityFn: any) => {
+  let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
     let selectorFn =
       typeof selector === "string" ? (s: StateObj) => s[selector] : selector
 

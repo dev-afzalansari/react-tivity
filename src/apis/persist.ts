@@ -2,11 +2,11 @@ import { useSyncExternalStoreWithSelector } from "../uSES"
 import initStore from "../inits/initStore"
 import initStorage from "../inits/initStorage"
 
-import type { StateObj, StateCopy } from "../inits/initStore"
+import type { StateObj, StateCopy, Hook } from "../inits/initStore"
 
 type Reducer = (state: StateObj, action: any) => any
 
-export default function persist(argA: StateObj | Reducer, argB: StateObj) {
+export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
   let arg = argB ? argB : argA
   let reducer = argB ? argA : null
 
@@ -108,7 +108,7 @@ export default function persist(argA: StateObj | Reducer, argB: StateObj) {
 
   store.subscribe(saveToStorage)
 
-  let hook = (selector = (s: StateObj) => s, equalityFn: any) => {
+  let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
     let selectorFn =
       typeof selector === "string" ? (s: StateObj) => s[selector] : selector
     return useSyncExternalStoreWithSelector(

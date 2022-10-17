@@ -1,18 +1,19 @@
-import React from "react"
-import { render, fireEvent } from "@testing-library/react"
+import React, { ReactNode } from "react"
+import { render, fireEvent, } from "@testing-library/react"
 
 import { create } from ".."
+import { StateCopy, StateObj } from '../inits/initStore'
 
 describe("tests with store methods", () => {
-  let initObj = () => ({
+  let initObj = (): StateObj => ({
     count: 0,
-    inc: (state) => ({ count: state.count + 1 }),
-    dec: (state) => state.set({ count: state.count - 1 }),
+    inc: (state: StateCopy) => ({ count: state.count + 1 }),
+    dec: (state: StateCopy) => state.set({ count: state.count - 1 }),
     title: "nothing",
-    setTitle: (_state, newTitle) => ({ title: newTitle }),
+    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle }),
   })
 
-  let useStore = null
+  let useStore: any
 
   beforeEach(() => {
     useStore = create(initObj())
@@ -24,7 +25,7 @@ describe("tests with store methods", () => {
 
   test("store selector returns selected state", async () => {
     function Component() {
-      let title = useStore((state) => state.title)
+      let title = useStore((state: StateObj) => state.title)
       return <h1>{title}</h1>
     }
 
@@ -57,8 +58,8 @@ describe("tests with store methods", () => {
 
   test("state setter methods set the state", async () => {
     function Component() {
-      let count = useStore((state) => state.count)
-      let inc = useStore((state) => state.inc)
+      let count = useStore((state: StateObj) => state.count)
+      let inc = useStore((state: StateObj) => state.inc)
       return (
         <>
           <h1>{count}</h1>
@@ -78,8 +79,8 @@ describe("tests with store methods", () => {
     let newTitle = "something"
 
     function Component() {
-      let title = useStore((state) => state.title)
-      let setTitle = useStore((state) => state.setTitle)
+      let title = useStore((state: StateObj) => state.title)
+      let setTitle = useStore((state: StateObj) => state.setTitle)
 
       return (
         <>
@@ -116,15 +117,15 @@ describe("tests with store methods", () => {
 })
 
 describe("tests with store apis", () => {
-  let initObj = () => ({
+  let initObj = (): StateObj => ({
     count: 0,
-    inc: (state) => ({ count: state.count + 1 }),
-    dec: (state) => state.set({ count: state.count - 1 }),
+    inc: (state: StateCopy) => ({ count: state.count + 1 }),
+    dec: (state: StateCopy) => state.set({ count: state.count - 1 }),
     title: "nothing",
-    setTitle: (_state, newTitle) => ({ title: newTitle }),
+    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle }),
   })
 
-  let useStore = null
+  let useStore: any
 
   beforeEach(() => {
     useStore = create(initObj())
@@ -167,7 +168,7 @@ describe("tests with store apis", () => {
   })
 
   test("accepts initializer function which returns object", () => {
-    let useTestStore = create(initObj)
+    let useTestStore: any = create(initObj)
     let state = useTestStore.state
 
     expect(state.get().count).toBe(0)

@@ -1,7 +1,7 @@
 import { useSyncExternalStoreWithSelector } from "../uSES"
 import initStore from "../inits/initStore"
 
-import { StateObj, Initializer } from "../inits/initStore"
+import { StateObj, Initializer, Hook } from "../inits/initStore"
 
 export default function reduce(reducer: any, arg: StateObj | Initializer) {
   // validate initObj to not to contain methods
@@ -26,7 +26,7 @@ export default function reduce(reducer: any, arg: StateObj | Initializer) {
     }
   }
 
-  let hook = (selector = (s: StateObj) => s, equalityFn: any) => {
+  let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
     let selectorFn =
       typeof selector === "string" ? (s: StateObj) => s[selector] : selector
 
