@@ -250,6 +250,31 @@ const migrate = (curr, prev) => {
 
 ```
 
+## Internal `_status` slice
+
+Asynchronous storages will hydrate stores asynchronously it means that user can have a flash of initial state before store
+gets hydrated and the view gets updated. To overcome this problem a `_status` slice is managed internally. The value of `_status`
+is `false` initially and when asynchronous task gets done it is set to `true` so you can wrap your child components consuming
+that state in a parent wrapper component to prevent flash of that initial state by rendering a loader component until store gets
+hydrated.
+
+```javascript
+// Note: `_status` property gets set to true even if there was no state saved in the storage.
+function PersistWrapper() {
+  let status = useCount('_status')  // or useCount(state => state._status)
+  
+  if(!status) return <h1>Loading...</h1>
+  
+  return <ChildComponent />
+}
+
+function ChildComponent() {
+  // child component consuming useCount's state
+}
+```
+
+
+
 Some **apis** are assigned to the hook and can be used in or outside of react component.
 
 ```javascript
