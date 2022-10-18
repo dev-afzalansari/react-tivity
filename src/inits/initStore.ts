@@ -14,7 +14,10 @@ export interface TempStateCopy extends StateObj {
 
 export type Initializer = () => StateObj
 
-export type Hook = (selector?: ((s: StateObj) => StateObj) | undefined, equalityFn?: any) => StateObj
+export type Hook = (
+  selector?: ((s: StateObj) => StateObj) | undefined,
+  equalityFn?: any
+) => StateObj
 
 export default function initStore(initObj: StateObj) {
   /* eslint-disable-next-line */
@@ -39,11 +42,11 @@ export default function initStore(initObj: StateObj) {
       set: (nextState: object, render: boolean | undefined) =>
         setStateImpl(nextState, render),
       get: (key?: string) =>
-        typeof key === "string" ? initStateCopy()[key] : initStateCopy(),
+        typeof key === 'string' ? initStateCopy()[key] : initStateCopy()
     })
 
-    Object.keys(state).forEach((key) => {
-      if (typeof state[key] === "function") {
+    Object.keys(state).forEach(key => {
+      if (typeof state[key] === 'function') {
         stateCopy[key] = state[key]
       }
     })
@@ -54,7 +57,7 @@ export default function initStore(initObj: StateObj) {
   // clear or validate nextState and delete set & get method
   const clearNextState = (nextState: TempStateCopy): StateObj | null => {
     let nextStateKeys: string[] | null =
-      typeof nextState === "object" ? Object.keys(nextState) : null
+      typeof nextState === 'object' ? Object.keys(nextState) : null
 
     if (nextStateKeys) {
       delete nextState.get
@@ -76,8 +79,8 @@ export default function initStore(initObj: StateObj) {
   let state: StateObj = {}
 
   // mounting initial state
-  Object.keys(initObj).forEach((key) => {
-    if (typeof initObj[key] === "function") {
+  Object.keys(initObj).forEach(key => {
+    if (typeof initObj[key] === 'function') {
       state[key] = (...args: any[]) => setState(initObj[key], args)
     } else {
       state[key] = initObj[key]
@@ -94,6 +97,6 @@ export default function initStore(initObj: StateObj) {
   return {
     subscribe,
     getSnapshot,
-    createStateCopy,
+    createStateCopy
   }
 }

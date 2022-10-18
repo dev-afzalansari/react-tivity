@@ -1,8 +1,8 @@
-import { useSyncExternalStoreWithSelector } from "../uSES"
-import initStore from "../inits/initStore"
-import initStorage from "../inits/initStorage"
+import { useSyncExternalStoreWithSelector } from '../uSES'
+import initStore from '../inits/initStore'
+import initStorage from '../inits/initStorage'
 
-import type { StateObj, StateCopy, Hook } from "../inits/initStore"
+import type { StateObj, StateCopy, Hook } from '../inits/initStore'
 
 type Reducer = (state: StateObj, action: any) => any
 
@@ -10,23 +10,23 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
   let arg = argB ? argB : argA
   let reducer = argB ? argA : null
 
-  let initObj = typeof arg === "function" ? arg() : arg
+  let initObj = typeof arg === 'function' ? arg() : arg
 
-  if (reducer && typeof reducer === "function") {
+  if (reducer && typeof reducer === 'function') {
     let isValidObj = Object.keys(initObj).every(
-      (key) => typeof initObj[key] !== "function"
+      key => typeof initObj[key] !== 'function'
     )
     if (!isValidObj) {
-      if (process.env.NODE_ENV !== "production") {
-        throw new Error("[react-tivity] reduce does not accepts object methods")
+      if (process.env.NODE_ENV !== 'production') {
+        throw new Error('[react-tivity] reduce does not accepts object methods')
       }
     }
   }
 
-  let storageType = initObj.config.storage || "local"
+  let storageType = initObj.config.storage || 'local'
   let storage
 
-  if (storageType === "local" || storageType === "session") {
+  if (storageType === 'local' || storageType === 'session') {
     storage = initStorage(storageType)
     delete initObj.config.storage
   }
@@ -37,7 +37,7 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
     deserialize: (state: string) => JSON.parse(state),
     blacklist: [],
     version: 0,
-    ...initObj.config,
+    ...initObj.config
   }
 
   delete initObj.config
@@ -60,8 +60,8 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
   const saveToStorage = async (toSaveState = state.get()) => {
     let toSave: StateObj = {}
 
-    config.blacklist.push("_status")
-    Object.keys(toSaveState).forEach((key) => {
+    config.blacklist.push('_status')
+    Object.keys(toSaveState).forEach(key => {
       if (config.blacklist.includes(key)) return
       toSave[key] = toSaveState[key]
     })
@@ -84,19 +84,19 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
     let toSet: StateObj
 
     if (
-      typeof persistedState.version !== "undefined" &&
+      typeof persistedState.version !== 'undefined' &&
       persistedState.version !== config.version
     ) {
       toSet = config.migrate(currentState, persistedState)
-      Object.keys(toSet).forEach((key) => {
-        if (typeof persistedState[key] !== "undefined") {
+      Object.keys(toSet).forEach(key => {
+        if (typeof persistedState[key] !== 'undefined') {
           toSet[key] = persistedState[key]
         }
       })
     } else {
       toSet = { ...currentState, ...persistedState }
-      Object.keys(toSet).forEach((key) => {
-        if (typeof currentState[key] === "undefined") {
+      Object.keys(toSet).forEach(key => {
+        if (typeof currentState[key] === 'undefined') {
           delete toSet[key]
         }
       })
@@ -110,7 +110,7 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
 
   let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
     let selectorFn =
-      typeof selector === "string" ? (s: StateObj) => s[selector] : selector
+      typeof selector === 'string' ? (s: StateObj) => s[selector] : selector
     return useSyncExternalStoreWithSelector(
       store.subscribe,
       store.getSnapshot,
@@ -126,7 +126,7 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
 
   const dispatch = (action: object) => {
     let nextState =
-      typeof reducer === "function" ? reducer(state.get(), action) : null
+      typeof reducer === 'function' ? reducer(state.get(), action) : null
     if (nextState && Object.keys(nextState).length) {
       state.set(nextState)
     }
@@ -136,9 +136,9 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
     subscribe: store.subscribe,
     state: store.createStateCopy(),
     persist: {
-      clearStorage,
+      clearStorage
     },
-    ...(reducer ? { dispatch } : {}),
+    ...(reducer ? { dispatch } : {})
   })
 
   return hook

@@ -1,15 +1,15 @@
-import { useSyncExternalStoreWithSelector } from "../uSES"
-import initStore from "../inits/initStore"
+import { useSyncExternalStoreWithSelector } from '../uSES'
+import initStore from '../inits/initStore'
 
-import { StateObj, Initializer, Hook } from "../inits/initStore"
+import { StateObj, Initializer, Hook } from '../inits/initStore'
 
 export default function create(arg: StateObj | Initializer) {
-  let initObj: StateObj = typeof arg === "function" ? arg() : arg
+  let initObj: StateObj = typeof arg === 'function' ? arg() : arg
   let store = initStore(initObj)
 
   let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
     let selectorFn =
-      typeof selector === "string" ? (s: StateObj) => s[selector] : selector
+      typeof selector === 'string' ? (s: StateObj) => s[selector] : selector
 
     return useSyncExternalStoreWithSelector(
       store.subscribe,
@@ -22,7 +22,7 @@ export default function create(arg: StateObj | Initializer) {
 
   Object.assign(hook, {
     subscribe: store.subscribe,
-    state: store.createStateCopy(),
+    state: store.createStateCopy()
   })
 
   return hook

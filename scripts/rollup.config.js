@@ -1,13 +1,13 @@
-import babel from "@rollup/plugin-babel"
-import { terser } from "rollup-plugin-terser"
-import typescript from "@rollup/plugin-typescript"
-import nodeResolve from "@rollup/plugin-node-resolve"
-import commonjs from "@rollup/plugin-commonjs"
+import babel from '@rollup/plugin-babel'
+import { terser } from 'rollup-plugin-terser'
+import typescript from '@rollup/plugin-typescript'
+import nodeResolve from '@rollup/plugin-node-resolve'
+import commonjs from '@rollup/plugin-commonjs'
 
-const babelConfig = require("./babel")
+const babelConfig = require('./babel')
 
 const isExternal = function (id) {
-  return id.startsWith("use-sync-external-store")
+  return id.startsWith('use-sync-external-store')
 }
 
 function esmConfig(file) {
@@ -16,15 +16,15 @@ function esmConfig(file) {
     output: [
       {
         file: `dist/esm/${file}.js`,
-        format: "esm",
+        format: 'esm'
       },
       {
         file: `dist/esm/${file}.mjs`,
-        format: "esm",
-      },
+        format: 'esm'
+      }
     ],
     external: isExternal,
-    plugins: [nodeResolve({ extensions: [".ts", ".js"] }), typescript()],
+    plugins: [nodeResolve({ extensions: ['.ts', '.js'] }), typescript()]
   }
 }
 
@@ -34,19 +34,19 @@ function cjsConfig(file) {
     output: [
       {
         file: `dist/${file}.js`,
-        format: "cjs",
-      },
+        format: 'cjs'
+      }
     ],
     external: isExternal,
     plugins: [
-      nodeResolve({ extensions: [".ts", ".js"] }),
+      nodeResolve({ extensions: ['.ts', '.js'] }),
       commonjs(),
       babel({
         ...babelConfig,
-        extensions: [".ts", ".js"],
-        babelHelpers: "bundled",
-      }),
-    ],
+        extensions: ['.ts', '.js'],
+        babelHelpers: 'bundled'
+      })
+    ]
   }
 }
 
@@ -56,24 +56,24 @@ function umdConfig(file, env) {
     output: [
       {
         file: `dist/umd/${file}.${env}.js`,
-        name: "react-tivity",
-        format: "umd",
+        name: 'react-tivity',
+        format: 'umd',
         globals: {
-          "use-sync-external-store/shim/with-selector":
-            "useSyncExternalStoreExports",
-        },
-      },
+          'use-sync-external-store/shim/with-selector':
+            'useSyncExternalStoreExports'
+        }
+      }
     ],
     external: isExternal,
     plugins: [
-      nodeResolve({ extensions: [".ts", ".js"] }),
+      nodeResolve({ extensions: ['.ts', '.js'] }),
       babel({
         ...babelConfig,
-        extensions: [".ts", ".js"],
-        babelHelpers: "bundled",
+        extensions: ['.ts', '.js'],
+        babelHelpers: 'bundled'
       }),
-      ...(env === "development" ? [] : [terser()]),
-    ],
+      ...(env === 'development' ? [] : [terser()])
+    ]
   }
 }
 
@@ -81,9 +81,9 @@ let exposeUMD = false
 
 export default function () {
   return [
-    esmConfig("index"),
-    cjsConfig("index"),
-    ...(exposeUMD ? umdConfig("index", "development") : []),
-    ...(exposeUMD ? umdConfig("index", "production") : []),
+    esmConfig('index'),
+    cjsConfig('index'),
+    ...(exposeUMD ? umdConfig('index', 'development') : []),
+    ...(exposeUMD ? umdConfig('index', 'production') : [])
   ]
 }

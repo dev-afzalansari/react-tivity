@@ -1,6 +1,6 @@
-import type { StateObj } from "./initStore"
+import type { StateObj } from './initStore'
 
-type StorageType = "local" | "session"
+type StorageType = 'local' | 'session'
 
 export interface Storage {
   setItem: (key: string, value: StateObj) => Promise<unknown>
@@ -18,7 +18,7 @@ interface NoopStorage {
 const noop = (): NoopStorage => ({
   getItem: () => {},
   setItem: () => {},
-  removeItem: () => {},
+  removeItem: () => {}
 })
 
 /* global Promise */
@@ -27,7 +27,7 @@ export default function initStorage(type: StorageType): Storage | NoopStorage {
 
   let env = process.env.NODE_ENV
   const warn = () => {
-    if (env !== "production") {
+    if (env !== 'production') {
       console.warn(
         `[react-tivity] window undefined failed to build ${type}Storage falling back to noopStorage`
       )
@@ -35,9 +35,9 @@ export default function initStorage(type: StorageType): Storage | NoopStorage {
   }
 
   try {
-    if (env === "test") throw Error()
-    if (window && typeof window === "object") {
-      storage = window[(type + "Storage") as any]
+    if (env === 'test') throw Error()
+    if (window && typeof window === 'object') {
+      storage = window[(type + 'Storage') as any]
     } else {
       warn()
       return noop()
@@ -49,18 +49,18 @@ export default function initStorage(type: StorageType): Storage | NoopStorage {
 
   return {
     setItem: (key: string, value: StateObj) =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         storage.setItem(key, value)
         resolve(true)
       }),
     getItem: (key: string) =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         resolve(storage.getItem(key))
       }),
     removeItem: (key: string) =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         storage.removeItem(key)
         resolve(true)
-      }),
+      })
   }
 }
