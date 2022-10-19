@@ -1,3 +1,3 @@
-import * as useSyncExternalStoreExports from 'use-sync-external-store/shim/with-selector'
+import useSyncExternalStoreExports from 'use-sync-external-store/shim/with-selector.js'
 
 export const { useSyncExternalStoreWithSelector } = useSyncExternalStoreExports
