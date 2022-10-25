@@ -7,9 +7,6 @@ export function proxy(initializer: any, isMethod = false) {
       obj[prop] = value
       state.set(obj)
       return true
-    },
-    get: (state: StateCopy, prop: string) => {
-      return state.get(prop)
     }
   }
 

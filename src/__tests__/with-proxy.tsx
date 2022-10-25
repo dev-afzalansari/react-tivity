@@ -96,4 +96,37 @@ describe('tests with create', () => {
       expect(useStore.state.get('count')).toBe(-1)
 
     })
+
+    test('proxies single method', async () => {
+      let useTestStore = create({
+        count: 0,
+        inc: proxy((state: StateCopy) => state.count++, true),
+        dec: proxy((state: StateCopy) => state.count--, true)
+      })
+
+      function Component() {
+        let { count, inc, dec } = useTestStore()
+
+        return (
+          <div>
+            <h1>{count}</h1>
+            <button onClick={inc}>inc</button>
+            <button onClick={dec}>dec</button>
+          </div>
+        )
+      }
+
+      let { findByText, getByText } = render(<Component />)
+
+      await findByText('0')
+
+      fireEvent.click(getByText('inc'))
+
+      await findByText('1')
+
+      fireEvent.click(getByText('dec'))
+      fireEvent.click(getByText('dec'))
+
+      await findByText('-1')
+    })
 })
