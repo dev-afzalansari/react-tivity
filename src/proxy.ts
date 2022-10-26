@@ -1,6 +1,6 @@
 import type { StateCopy, StateObj } from './inits/initStore'
 
-export function proxy(initializer: any, isMethod = false) {
+export default function proxy(initializer: any, isMethod = false) {
   const handler = {
     set: (state: StateCopy, prop: string, value: any) => {
       let obj: any = {}

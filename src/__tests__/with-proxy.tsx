@@ -2,7 +2,7 @@ import React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 
 import { create } from '..'
-import { proxy } from '../proxy'
+import { proxy } from '..'
 import type { StateCopy, StateObj } from '../inits/initStore'
 
 describe('tests with create', () => {
