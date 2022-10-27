@@ -1,5 +1,5 @@
 import React from 'react'
-import { render, fireEvent } from '@testing-library/react'
+import { render, fireEvent, findByAltText } from '@testing-library/react'
 
 import { create } from '..'
 import { proxy } from '..'
@@ -129,4 +129,47 @@ describe('tests with create', () => {
 
       await findByText('-1')
     })
+})
+
+test('set & get on proxied state object works', async () => {
+
+  let useStore = create(proxy({
+    count: 0,
+    inc: (state: StateCopy) => {
+      state.set({
+        count: state.get('count') + 1
+      })
+    },
+    dec: (state: StateCopy) => {
+      state.set({
+        count: state.count - 1
+      })
+    }
+  }))
+
+  function Component() {
+    let { count, inc, dec } = useStore()
+
+    return (
+      <div>
+        <h1>{count}</h1>
+        <button onClick={inc}>inc</button>
+        <button onClick={dec}>dec</button>
+      </div>
+    )
+  }
+
+  let { findByText, getByText } = render(<Component />)
+
+  await findByText('0')
+
+  fireEvent.click(getByText('inc'))
+
+  await findByText('1')
+
+  fireEvent.click(getByText('dec'))
+  fireEvent.click(getByText('dec'))
+
+  await findByText('-1')
+
 })
