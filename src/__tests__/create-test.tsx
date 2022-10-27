@@ -114,6 +114,74 @@ describe("tests with store methods", () => {
     fireEvent.click(getByText("dec"))
     await findByText("-1")
   })
+
+  test('updates the subscribed components only', async () => {
+
+    function Count() {
+      let count = useStore((state: StateObj) => state.count)
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <h1>count: {count}</h1>
+          <h1>CountRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    function Title() {
+      let title = useStore('title')
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <h1>count: {title}</h1>
+          <h1>TitleRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    function Control() {
+      let { inc, dec, setTitle } = useStore()
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <button onClick={inc}>inc</button>
+          <button onClick={dec}>dec</button>
+          <button onClick={() => setTitle('something')}>change</button>
+          <h1>ControlRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    let { findByText, getByText } = render(<div>
+      <Count />
+      <Title />
+      <Control />
+    </div>)
+
+    await findByText('CountRendered: 1')
+    await findByText('TitleRendered: 1')
+    await findByText('ControlRendered: 1')
+
+    fireEvent.click(getByText('inc'))
+    
+    await findByText('CountRendered: 2')
+    await findByText('TitleRendered: 1')
+    await findByText('ControlRendered: 2')
+
+    fireEvent.click(getByText('change'))
+
+    await findByText('CountRendered: 2')
+    await findByText('TitleRendered: 2')
+    await findByText('ControlRendered: 3')
+
+  })
+
 })
 
 describe("tests with store apis", () => {
