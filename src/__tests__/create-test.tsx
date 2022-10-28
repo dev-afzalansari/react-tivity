@@ -1,16 +1,16 @@
-import React, { ReactNode } from "react"
-import { render, fireEvent, } from "@testing-library/react"
+import React, { ReactNode } from 'react'
+import { render, fireEvent } from '@testing-library/react'
 
-import { create } from ".."
+import { create } from '..'
 import { StateCopy, StateObj } from '../inits/initStore'
 
-describe("tests with store methods", () => {
+describe('tests with store methods', () => {
   let initObj = (): StateObj => ({
     count: 0,
     inc: (state: StateCopy) => ({ count: state.count + 1 }),
     dec: (state: StateCopy) => state.set({ count: state.count - 1 }),
-    title: "nothing",
-    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle }),
+    title: 'nothing',
+    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle })
   })
 
   let useStore: any
@@ -23,7 +23,7 @@ describe("tests with store methods", () => {
     useStore = null
   })
 
-  test("store selector returns selected state", async () => {
+  test('store selector returns selected state', async () => {
     function Component() {
       let title = useStore((state: StateObj) => state.title)
       return <h1>{title}</h1>
@@ -31,21 +31,21 @@ describe("tests with store methods", () => {
 
     let { findByText } = render(<Component />)
 
-    await findByText("nothing")
+    await findByText('nothing')
   })
 
-  test("returns the slice with only slice name", async () => {
+  test('returns the slice with only slice name', async () => {
     function Component() {
-      let title = useStore("title")
+      let title = useStore('title')
       return <h1>{title}</h1>
     }
 
     let { findByText } = render(<Component />)
 
-    await findByText("nothing")
+    await findByText('nothing')
   })
 
-  test("store selector returns state object if no selector passed", async () => {
+  test('store selector returns state object if no selector passed', async () => {
     function Component() {
       let { title } = useStore()
       return <h1>{title}</h1>
@@ -53,10 +53,10 @@ describe("tests with store methods", () => {
 
     let { findByText } = render(<Component />)
 
-    await findByText("nothing")
+    await findByText('nothing')
   })
 
-  test("state setter methods set the state", async () => {
+  test('state setter methods set the state', async () => {
     function Component() {
       let count = useStore((state: StateObj) => state.count)
       let inc = useStore((state: StateObj) => state.inc)
@@ -70,13 +70,13 @@ describe("tests with store methods", () => {
 
     let { findByText, getByText } = render(<Component />)
 
-    await findByText("0")
-    fireEvent.click(getByText("inc"))
-    await findByText("1")
+    await findByText('0')
+    fireEvent.click(getByText('inc'))
+    await findByText('1')
   })
 
-  test("setState action accepts arguments", async () => {
-    let newTitle = "something"
+  test('setState action accepts arguments', async () => {
+    let newTitle = 'something'
 
     function Component() {
       let title = useStore((state: StateObj) => state.title)
@@ -92,12 +92,12 @@ describe("tests with store methods", () => {
 
     let { findByText, getByText } = render(<Component />)
 
-    await findByText("nothing")
-    fireEvent.click(getByText("change"))
+    await findByText('nothing')
+    fireEvent.click(getByText('change'))
     await findByText(newTitle)
   })
 
-  test("setting state with state.set", async () => {
+  test('setting state with state.set', async () => {
     function Component() {
       let { count, dec } = useStore()
       return (
@@ -110,13 +110,12 @@ describe("tests with store methods", () => {
 
     let { findByText, getByText } = render(<Component />)
 
-    await findByText("0")
-    fireEvent.click(getByText("dec"))
-    await findByText("-1")
+    await findByText('0')
+    fireEvent.click(getByText('dec'))
+    await findByText('-1')
   })
 
   test('updates the subscribed components only', async () => {
-
     function Count() {
       let count = useStore((state: StateObj) => state.count)
       let rendered = React.useRef(0)
@@ -158,18 +157,20 @@ describe("tests with store methods", () => {
       )
     }
 
-    let { findByText, getByText } = render(<div>
-      <Count />
-      <Title />
-      <Control />
-    </div>)
+    let { findByText, getByText } = render(
+      <div>
+        <Count />
+        <Title />
+        <Control />
+      </div>
+    )
 
     await findByText('CountRendered: 1')
     await findByText('TitleRendered: 1')
     await findByText('ControlRendered: 1')
 
     fireEvent.click(getByText('inc'))
-    
+
     await findByText('CountRendered: 2')
     await findByText('TitleRendered: 1')
     await findByText('ControlRendered: 2')
@@ -179,18 +180,16 @@ describe("tests with store methods", () => {
     await findByText('CountRendered: 2')
     await findByText('TitleRendered: 2')
     await findByText('ControlRendered: 3')
-
   })
-
 })
 
-describe("tests with store apis", () => {
+describe('tests with store apis', () => {
   let initObj = (): StateObj => ({
     count: 0,
     inc: (state: StateCopy) => ({ count: state.count + 1 }),
     dec: (state: StateCopy) => state.set({ count: state.count - 1 }),
-    title: "nothing",
-    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle }),
+    title: 'nothing',
+    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle })
   })
 
   let useStore: any
@@ -203,29 +202,29 @@ describe("tests with store apis", () => {
     useStore = null
   })
 
-  test("can get access to state object", async () => {
+  test('can get access to state object', async () => {
     let state = useStore.state
 
-    expect(state.get("count")).toBe(0)
-    expect(state.get("title")).toBe("nothing")
+    expect(state.get('count')).toBe(0)
+    expect(state.get('title')).toBe('nothing')
 
     state.inc()
 
-    expect(state.get("count")).toBe(1)
+    expect(state.get('count')).toBe(1)
 
     state.dec()
     state.dec()
 
-    expect(state.get("count")).toBe(-1)
+    expect(state.get('count')).toBe(-1)
 
     state.set({ count: 10 })
-    state.set({ title: "something" })
+    state.set({ title: 'something' })
 
     expect(state.get().count).toBe(10)
-    expect(state.get().title).toBe("something")
+    expect(state.get().title).toBe('something')
   })
 
-  test("can register a callback", () => {
+  test('can register a callback', () => {
     let mockCb = jest.fn()
     let state = useStore.state
 
@@ -235,11 +234,11 @@ describe("tests with store apis", () => {
     expect(mockCb).toHaveBeenCalled()
   })
 
-  test("accepts initializer function which returns object", () => {
+  test('accepts initializer function which returns object', () => {
     let useTestStore: any = create(initObj)
     let state = useTestStore.state
 
     expect(state.get().count).toBe(0)
-    expect(state.get().title).toBe("nothing")
+    expect(state.get().title).toBe('nothing')
   })
 })

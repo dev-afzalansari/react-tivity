@@ -19,10 +19,10 @@
     }
   },
   "scripts": {
-    "cleanup": "rm -rf dist",
+    "cleanup": "rimraf dist",
     "build": "rollup -c ./scripts/rollup.config.js",
-    "format": "prettier {src,scripts}/**/*.{js,ts} --write",
-    "format:check": "prettier --check {src,tests,scripts}/**/*.{js,ts}",
+    "format": "prettier {src,scripts}/**/*.{js,ts,tsx} --write",
+    "format:check": "prettier --check {src,tests,scripts}/**/*.{js,tsx}",
     "lint": "eslint src/**/*.{js,ts}",
     "test": "jest --silent"
   },
@@ -54,6 +54,7 @@
     "prettier": "^2.7.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
+    "rimraf": "^3.0.2",
     "rollup": "^2.79.0",
     "rollup-plugin-terser": "^7.0.2",
     "tslib": "^2.4.0",

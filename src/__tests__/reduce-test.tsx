@@ -1,31 +1,31 @@
-import React from "react"
-import { render, fireEvent } from "@testing-library/react"
+import React from 'react'
+import { render, fireEvent } from '@testing-library/react'
 
-import { reduce } from ".."
+import { reduce } from '..'
 import { StateObj } from '../inits/initStore'
 
-describe("reduce tests", () => {
+describe('reduce tests', () => {
   let initObj = () => ({
     count: 0,
-    title: "nothing",
+    title: 'nothing'
   })
 
   function reducer(state: StateObj, action: any) {
     switch (action.type) {
-      case "inc":
+      case 'inc':
         return {
-          count: state.count + 1,
+          count: state.count + 1
         }
-      case "dec":
+      case 'dec':
         return {
-          count: state.count - 1,
+          count: state.count - 1
         }
-      case "change":
+      case 'change':
         return {
-          title: action.title,
+          title: action.title
         }
     }
-    throw Error("unknow action", action.type)
+    throw Error('unknow action', action.type)
   }
 
   let useStore: any
@@ -38,10 +38,10 @@ describe("reduce tests", () => {
     useStore = null
   })
 
-  test("selector returns the selected state", async () => {
+  test('selector returns the selected state', async () => {
     function Component() {
       let count = useStore((state: StateObj) => state.count)
-      let title = useStore("title")
+      let title = useStore('title')
 
       return (
         <div>
@@ -53,11 +53,11 @@ describe("reduce tests", () => {
 
     let { findByText } = render(<Component />)
 
-    await findByText("0")
-    await findByText("nothing")
+    await findByText('0')
+    await findByText('nothing')
   })
 
-  test("dispatch action updates the state", async () => {
+  test('dispatch action updates the state', async () => {
     function Component() {
       let { count, title } = useStore()
 
@@ -65,15 +65,15 @@ describe("reduce tests", () => {
         <div>
           <h1>{count}</h1>
           <h1>{title}</h1>
-          <button onClick={() => useStore.dispatch({ type: "inc" })}>
+          <button onClick={() => useStore.dispatch({ type: 'inc' })}>
             inc
           </button>
-          <button onClick={() => useStore.dispatch({ type: "dec" })}>
+          <button onClick={() => useStore.dispatch({ type: 'dec' })}>
             dec
           </button>
           <button
             onClick={() =>
-              useStore.dispatch({ type: "change", title: "something" })
+              useStore.dispatch({ type: 'change', title: 'something' })
             }
           >
             change
@@ -84,37 +84,37 @@ describe("reduce tests", () => {
 
     let { findByText, getByText } = render(<Component />)
 
-    await findByText("0")
-    await findByText("nothing")
-    fireEvent.click(getByText("inc"))
-    await findByText("1")
-    fireEvent.click(getByText("dec"))
-    fireEvent.click(getByText("dec"))
-    await findByText("-1")
-    fireEvent.click(getByText("change"))
-    await findByText("something")
+    await findByText('0')
+    await findByText('nothing')
+    fireEvent.click(getByText('inc'))
+    await findByText('1')
+    fireEvent.click(getByText('dec'))
+    fireEvent.click(getByText('dec'))
+    await findByText('-1')
+    fireEvent.click(getByText('change'))
+    await findByText('something')
   })
 
-  test("accepts initializer function", () => {
+  test('accepts initializer function', () => {
     let useTestStore: any = reduce(reducer, initObj)
     let state = useTestStore.state
 
     expect(state.get().count).toBe(0)
-    expect(state.get().title).toBe("nothing")
+    expect(state.get().title).toBe('nothing')
   })
 })
 
-test("throws an error when passed methods", () => {
+test('throws an error when passed methods', () => {
   expect.assertions(1)
 
   try {
     reduce(() => ({}), {
       state: false,
-      setState: () => ({ state: true }),
+      setState: () => ({ state: true })
     })
   } catch (err: any) {
     expect(err.message).toBe(
-      "[react-tivity] reduce does not accepts object methods"
+      '[react-tivity] reduce does not accepts object methods'
     )
   }
 })

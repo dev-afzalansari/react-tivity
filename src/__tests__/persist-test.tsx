@@ -1,8 +1,8 @@
-import React from "react"
-import { render, fireEvent } from "@testing-library/react"
+import React from 'react'
+import { render, fireEvent } from '@testing-library/react'
 
 import { persist } from '..'
-import initStorage, { Storage } from "../inits/initStorage"
+import initStorage, { Storage } from '../inits/initStorage'
 import { StateCopy, StateObj } from '../inits/initStore'
 
 export interface TempStorage {
@@ -12,36 +12,36 @@ export interface TempStorage {
 }
 
 /* global Promise */
-describe("persist tests", () => {
+describe('persist tests', () => {
   let initObj = (storage: Storage) => ({
     count: 0,
     inc: (state: StateCopy) => ({ count: state.count + 1 }),
     dec: (state: StateCopy) => state.set({ count: state.count - 1 }),
-    title: "nothing",
+    title: 'nothing',
     setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle }),
     config: {
-      key: "@key",
-      storage: storage,
-    },
+      key: '@key',
+      storage: storage
+    }
   })
 
   let initStorage = (): Storage => {
     let items: StateObj = {}
     return {
-      getItem: (key) =>
-        new Promise((resolve) => {
+      getItem: key =>
+        new Promise(resolve => {
           resolve(items[key])
         }),
       setItem: (key, value) =>
-        new Promise((resolve) => {
+        new Promise(resolve => {
           items[key] = value
           resolve(true)
         }),
-      removeItem: (key) =>
-        new Promise((resolve) => {
+      removeItem: key =>
+        new Promise(resolve => {
           items[key] = null
           resolve(true)
-        }),
+        })
     }
   }
 
@@ -58,7 +58,7 @@ describe("persist tests", () => {
     useStore = null
   })
 
-  test("saves initial Object to the storage", async () => {
+  test('saves initial Object to the storage', async () => {
     function Component() {
       let { count } = useStore()
 
@@ -71,17 +71,17 @@ describe("persist tests", () => {
 
     let { findByText } = render(<Component />)
 
-    await findByText("0")
+    await findByText('0')
 
-    let deserialized = JSON.parse(await storage.getItem("@key"))
+    let deserialized = JSON.parse(await storage.getItem('@key'))
     expect(deserialized).toEqual({
       count: 0,
-      title: "nothing",
-      version: 0,
+      title: 'nothing',
+      version: 0
     })
   })
 
-  test("saves state to storage on update", async () => {
+  test('saves state to storage on update', async () => {
     function Component() {
       let { count, inc, dec } = useStore()
 
@@ -96,88 +96,88 @@ describe("persist tests", () => {
 
     let { findByText, getByText } = render(<Component />)
 
-    await findByText("0")
-    fireEvent.click(getByText("inc"))
-    await findByText("1")
-    fireEvent.click(getByText("dec"))
-    fireEvent.click(getByText("dec"))
-    await findByText("-1")
+    await findByText('0')
+    fireEvent.click(getByText('inc'))
+    await findByText('1')
+    fireEvent.click(getByText('dec'))
+    fireEvent.click(getByText('dec'))
+    await findByText('-1')
 
-    let deserialized = JSON.parse(await storage.getItem("@key"))
+    let deserialized = JSON.parse(await storage.getItem('@key'))
     expect(deserialized).toEqual({
       count: -1,
-      title: "nothing",
-      version: 0,
+      title: 'nothing',
+      version: 0
     })
   })
 
-  test("clears the state when called clearStorage with api", async () => {
-    let firstTime = JSON.parse(await storage.getItem("@key"))
+  test('clears the state when called clearStorage with api', async () => {
+    let firstTime = JSON.parse(await storage.getItem('@key'))
     expect(firstTime).toEqual({
       count: 0,
-      title: "nothing",
-      version: 0,
+      title: 'nothing',
+      version: 0
     })
 
     useStore.persist.clearStorage()
-    let secondTime = JSON.parse(await storage.getItem("@key"))
+    let secondTime = JSON.parse(await storage.getItem('@key'))
     expect(secondTime).toBeFalsy()
   })
 
-  test("accepts initializer function", () => {
+  test('accepts initializer function', () => {
     let useTestStore: any = persist(initObj)
     let state = useTestStore.state
 
     expect(state.get().count).toBe(0)
-    expect(state.get().title).toBe("nothing")
+    expect(state.get().title).toBe('nothing')
   })
 })
 
-describe("persist tests with reducer", () => {
+describe('persist tests with reducer', () => {
   let initObj = (storage: Storage) => ({
     count: 0,
-    title: "nothing",
+    title: 'nothing',
     config: {
-      key: "@key",
-      storage: storage,
-    },
+      key: '@key',
+      storage: storage
+    }
   })
 
   function reducer(state: StateObj, action: any) {
     switch (action.type) {
-      case "inc":
+      case 'inc':
         return {
-          count: state.count + 1,
+          count: state.count + 1
         }
-      case "dec":
+      case 'dec':
         return {
-          count: state.count - 1,
+          count: state.count - 1
         }
-      case "title":
+      case 'title':
         return {
-          title: action.title,
+          title: action.title
         }
     }
-    throw Error("unknown action")
+    throw Error('unknown action')
   }
 
   let initStorage = (): Storage => {
     let items: StateObj = {}
     return {
-      getItem: (key) =>
-        new Promise((resolve) => {
+      getItem: key =>
+        new Promise(resolve => {
           resolve(items[key])
         }),
       setItem: (key, value) =>
-        new Promise((resolve) => {
+        new Promise(resolve => {
           items[key] = value
           resolve(true)
         }),
-      removeItem: (key) =>
-        new Promise((resolve) => {
+      removeItem: key =>
+        new Promise(resolve => {
           items[key] = null
           resolve(true)
-        }),
+        })
     }
   }
 
@@ -194,7 +194,7 @@ describe("persist tests with reducer", () => {
     useStore = null
   })
 
-  test("saves initial Object to the storage", async () => {
+  test('saves initial Object to the storage', async () => {
     function Component() {
       let { count } = useStore()
 
@@ -207,27 +207,27 @@ describe("persist tests with reducer", () => {
 
     let { findByText } = render(<Component />)
 
-    await findByText("0")
+    await findByText('0')
 
-    let deserialized = JSON.parse(await storage.getItem("@key"))
+    let deserialized = JSON.parse(await storage.getItem('@key'))
     expect(deserialized).toEqual({
       count: 0,
-      title: "nothing",
-      version: 0,
+      title: 'nothing',
+      version: 0
     })
   })
 
-  test("saves state to storage on update", async () => {
+  test('saves state to storage on update', async () => {
     function Component() {
       let { count } = useStore()
 
       return (
         <>
           <h1>{count}</h1>
-          <button onClick={() => useStore.dispatch({ type: "inc" })}>
+          <button onClick={() => useStore.dispatch({ type: 'inc' })}>
             inc
           </button>
-          <button onClick={() => useStore.dispatch({ type: "dec" })}>
+          <button onClick={() => useStore.dispatch({ type: 'dec' })}>
             dec
           </button>
         </>
@@ -236,70 +236,70 @@ describe("persist tests with reducer", () => {
 
     let { findByText, getByText } = render(<Component />)
 
-    await findByText("0")
-    fireEvent.click(getByText("inc"))
-    await findByText("1")
-    fireEvent.click(getByText("dec"))
-    fireEvent.click(getByText("dec"))
-    await findByText("-1")
+    await findByText('0')
+    fireEvent.click(getByText('inc'))
+    await findByText('1')
+    fireEvent.click(getByText('dec'))
+    fireEvent.click(getByText('dec'))
+    await findByText('-1')
 
-    let deserialized = JSON.parse(await storage.getItem("@key"))
+    let deserialized = JSON.parse(await storage.getItem('@key'))
     expect(deserialized).toEqual({
       count: -1,
-      title: "nothing",
-      version: 0,
+      title: 'nothing',
+      version: 0
     })
   })
 
-  test("clears the state when called clearStorage with api", async () => {
-    let firstTime = JSON.parse(await storage.getItem("@key"))
+  test('clears the state when called clearStorage with api', async () => {
+    let firstTime = JSON.parse(await storage.getItem('@key'))
     expect(firstTime).toEqual({
       count: 0,
-      title: "nothing",
-      version: 0,
+      title: 'nothing',
+      version: 0
     })
 
     useStore.persist.clearStorage()
-    let secondTime = JSON.parse(await storage.getItem("@key"))
+    let secondTime = JSON.parse(await storage.getItem('@key'))
     expect(secondTime).toBeFalsy()
   })
 
-  test("accepts initializer function", () => {
+  test('accepts initializer function', () => {
     let useTestStore: any = persist(reducer, initObj)
     let state = useTestStore.state
 
     expect(state.get().count).toBe(0)
-    expect(state.get().title).toBe("nothing")
+    expect(state.get().title).toBe('nothing')
   })
 })
 
-test("hydrates the state", async () => {
+test('hydrates the state', async () => {
   let state: StateObj = {
-    "@post": JSON.stringify({
+    '@post': JSON.stringify({
       views: 10,
       likes: 5,
-      version: 0,
-    }),
+      version: 0
+    })
   }
   let storage: TempStorage = {
-    getItem: (key) =>
-      new Promise((resolve) => {
+    getItem: key =>
+      new Promise(resolve => {
         resolve(state[key])
       }),
     setItem: (key, value) =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         state[key] = value
         resolve(true)
-      }),
+      })
   }
 
   const usePost = persist({
     views: 2,
     likes: 1,
     config: {
-      key: "@post",
-      storage: storage,
-    },
+      key: '@post',
+      storage: storage
+    }
   })
 
   function Component() {
@@ -315,39 +315,39 @@ test("hydrates the state", async () => {
 
   let { findByText } = render(<Component />)
 
-  await findByText("1")
-  await findByText("2")
-  await findByText("10")
-  await findByText("5")
+  await findByText('1')
+  await findByText('2')
+  await findByText('10')
+  await findByText('5')
 })
 
-test("internal _status state value returns correct value", async () => {
+test('internal _status state value returns correct value', async () => {
   let state: StateObj = {
-    "@post": JSON.stringify({
+    '@post': JSON.stringify({
       views: 10,
       likes: 5,
-      version: 0,
-    }),
+      version: 0
+    })
   }
   let storage: TempStorage = {
-    getItem: (key) =>
-      new Promise((resolve) => {
+    getItem: key =>
+      new Promise(resolve => {
         resolve(state[key])
       }),
     setItem: (key, value) =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         state[key] = value
         resolve(true)
-      }),
+      })
   }
 
   const usePost = persist({
     views: 2,
     likes: 1,
     config: {
-      key: "@post",
-      storage: storage,
-    },
+      key: '@post',
+      storage: storage
+    }
   })
 
   function Component() {
@@ -361,7 +361,7 @@ test("internal _status state value returns correct value", async () => {
     )
   }
 
-  function Wrapper({ children }: { children: any}) {
+  function Wrapper({ children }: { children: any }) {
     let { _status } = usePost()
 
     if (_status === false) {
@@ -377,35 +377,35 @@ test("internal _status state value returns correct value", async () => {
     </Wrapper>
   )
 
-  let loader = await findByText("Loading....")
+  let loader = await findByText('Loading....')
   expect(loader).toBeVisible()
-  await findByText("10")
-  await findByText("5")
+  await findByText('10')
+  await findByText('5')
   expect(loader).not.toBeVisible()
 })
 
-test("omits blacklisted state keys", async () => {
+test('omits blacklisted state keys', async () => {
   let state: StateObj = {}
   let storage: TempStorage = {
-    getItem: (key) =>
-      new Promise((resolve) => {
+    getItem: key =>
+      new Promise(resolve => {
         resolve(state[key])
       }),
     setItem: (key, value) =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         state[key] = value
         resolve(true)
-      }),
+      })
   }
 
   const usePost = persist({
     views: 10,
     likes: 5,
     config: {
-      key: "@post",
+      key: '@post',
       storage: storage,
-      blacklist: ["likes"],
-    },
+      blacklist: ['likes']
+    }
   })
 
   function Component() {
@@ -421,41 +421,43 @@ test("omits blacklisted state keys", async () => {
 
   let { findByText } = render(<Component />)
 
-  await findByText("10")
-  await findByText("5")
+  await findByText('10')
+  await findByText('5')
 
-  let deserialized: StateObj = storage.getItem ? JSON.parse((await storage.getItem("@post") as string)) : {}
+  let deserialized: StateObj = storage.getItem
+    ? JSON.parse((await storage.getItem('@post')) as string)
+    : {}
   expect(deserialized).toEqual({
     views: 10,
-    version: 0,
+    version: 0
   })
 })
 
-it("migrate on version mismatch", async () => {
+it('migrate on version mismatch', async () => {
   let state: StateObj = {
-    "@post": JSON.stringify({
+    '@post': JSON.stringify({
       views: 10,
       likes: 5,
-      version: 0,
-    }),
+      version: 0
+    })
   }
   let storage: TempStorage = {
-    getItem: (key) =>
-      new Promise((resolve) => {
+    getItem: key =>
+      new Promise(resolve => {
         resolve(state[key])
       }),
     setItem: (key, value) =>
-      new Promise((resolve) => {
+      new Promise(resolve => {
         state[key] = value
         resolve(true)
-      }),
+      })
   }
 
   const usePost = persist({
     views: 2,
     upvotes: 1,
     config: {
-      key: "@post",
+      key: '@post',
       storage: storage,
       version: 1,
       migrate: (current: StateObj, previous: StateObj) => {
@@ -463,8 +465,8 @@ it("migrate on version mismatch", async () => {
           current.upvotes = previous.likes
           return current
         }
-      },
-    },
+      }
+    }
   })
 
   function Component() {
@@ -480,20 +482,22 @@ it("migrate on version mismatch", async () => {
 
   let { findByText } = render(<Component />)
 
-  await findByText("2")
-  await findByText("1")
-  await findByText("5")
-  await findByText("10")
+  await findByText('2')
+  await findByText('1')
+  await findByText('5')
+  await findByText('10')
 
-  let deserialized: StateObj = storage.getItem ? JSON.parse((await storage.getItem("@post") as string)) : {}
+  let deserialized: StateObj = storage.getItem
+    ? JSON.parse((await storage.getItem('@post')) as string)
+    : {}
   expect(deserialized).toEqual({
     views: 10,
     upvotes: 5,
-    version: 1,
+    version: 1
   })
 })
 
-test("throws an error when passed methods in persist used as reduce", () => {
+test('throws an error when passed methods in persist used as reduce', () => {
   expect.assertions(1)
 
   try {
@@ -501,32 +505,32 @@ test("throws an error when passed methods in persist used as reduce", () => {
       state: false,
       setState: () => ({ state: true }),
       config: {
-        key: "@key",
-      },
+        key: '@key'
+      }
     })
   } catch (err: any) {
     expect(err.message).toBe(
-      "[react-tivity] reduce does not accepts object methods"
+      '[react-tivity] reduce does not accepts object methods'
     )
   }
 })
 
-describe("Internal storage tests", () => {
-  test("falls back to noop storage if window is undefined", () => {
-    let storage = initStorage("local")
+describe('Internal storage tests', () => {
+  test('falls back to noop storage if window is undefined', () => {
+    let storage = initStorage('local')
 
     expect(storage.getItem('')).toBeUndefined()
     expect(storage.setItem('', {})).toBeUndefined()
     expect(storage.removeItem('')).toBeUndefined()
   })
 
-  test("logs warning if internal storage fails to init", () => {
-    let warnSpy = jest.spyOn(console, "warn")
-    initStorage("local")
+  test('logs warning if internal storage fails to init', () => {
+    let warnSpy = jest.spyOn(console, 'warn')
+    initStorage('local')
 
     expect(warnSpy).toHaveBeenCalled()
     expect(warnSpy).toHaveBeenCalledWith(
-      "[react-tivity] window undefined failed to build localStorage falling back to noopStorage"
+      '[react-tivity] window undefined failed to build localStorage falling back to noopStorage'
     )
   })
 })
