@@ -2,8 +2,8 @@ import React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 
 import { persist } from '..'
-import initStorage, { Storage } from '../inits/initStorage'
-import { StateCopy, StateObj } from '../inits/initStore'
+import initStorage, { Storage } from '../utils/initStorage'
+import { StateCopy, StateObj } from '../utils/initStore'
 
 export interface TempStorage {
   setItem?: (key: string, value: StateObj) => Promise<unknown>

@@ -22,7 +22,7 @@ const noop = (): NoopStorage => ({
 })
 
 /* global Promise */
-export default function initStorage(type: StorageType): Storage | NoopStorage {
+export function initStorage(type: StorageType): Storage | NoopStorage {
   let storage: any
 
   let env = process.env.NODE_ENV

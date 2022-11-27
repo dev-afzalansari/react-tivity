@@ -1,10 +1,8 @@
-import { useSyncExternalStoreWithSelector } from '../uSES'
-import initStore from '../inits/initStore'
+import { initStore, useStore } from '../utils'
+import type { StateObj, Initializer } from '../utils'
 
-import { StateObj, Initializer, Hook } from '../inits/initStore'
-
-export default function reduce(reducer: any, arg: StateObj | Initializer) {
-  // validate initObj to not to contain methods
+export function reduce(reducer: any, arg: StateObj | Initializer) {
+  // Validate initObj to not to contain methods
   let initObj = typeof arg === 'function' ? arg() : arg
   let isValidObj = Object.keys(initObj).every(
     key => typeof initObj[key] !== 'function'
@@ -16,33 +14,20 @@ export default function reduce(reducer: any, arg: StateObj | Initializer) {
     }
   }
 
-  const store = initStore(initObj)
-  const state = store.createStateCopy()
-
-  const dispatch = (action: object) => {
-    let nextState = reducer(state.get(), action)
+  const dispatch = (state: StateObj, action: any) => {
+    const nextState = reducer(JSON.parse(JSON.stringify(state)), action)
     if (nextState && Object.keys(nextState).length) {
-      state.set(nextState)
+      store.setStateImpl(nextState)
     }
   }
 
-  let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
-    let selectorFn =
-      typeof selector === 'string' ? (s: StateObj) => s[selector] : selector
+  const store = initStore({ ...initObj, dispatch })
 
-    return useSyncExternalStoreWithSelector(
-      store.subscribe,
-      store.getSnapshot,
-      store.getSnapshot,
-      selectorFn,
-      equalityFn
-    )
-  }
+  let hook: any = () => useStore(store)
 
   Object.assign(hook, {
     subscribe: store.subscribe,
-    state: store.createStateCopy(),
-    dispatch: dispatch
+    state: store.getProxiedState()
   })
 
   return hook
