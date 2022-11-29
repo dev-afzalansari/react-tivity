@@ -1,3 +1,3 @@
 export { create } from './create'
 export { reduce } from './reduce'
-// export { persist } from './persist'
+export { persist } from './persist'

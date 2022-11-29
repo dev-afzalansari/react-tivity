@@ -1,8 +1,5 @@
-import { useSyncExternalStoreWithSelector } from '../uSES'
-import initStore from '../utils/initStore'
-import initStorage from '../utils/initStorage'
-
-import type { StateObj, StateCopy, Hook } from '../utils/initStore'
+import { initStore, initStorage, useStore } from '../utils'
+import type { StateObj } from '../utils'
 
 type Reducer = (state: StateObj, action: any) => any
 
@@ -40,11 +37,20 @@ export function persist(argA: StateObj | Reducer, argB?: StateObj) {
     ...initObj.config
   }
 
+  const dispatch = (_: StateObj, action: any) => {
+    const nextState = typeof reducer === 'function' ? reducer(copyObj(store.getSnapshot()), action) : null
+    if (nextState && Object.keys(nextState).length) {
+      store.setStateImpl(nextState)
+    }
+  }
+
   delete initObj.config
   initObj._status = false
+  config.blacklist.push('_status')
 
-  const store = initStore(initObj)
-  const state = store.createStateCopy()
+  const store = initStore({ ...initObj, ...(reducer ? { dispatch } : {})})
+  const state = store.getProxiedState()
+  const copyObj = (obj: StateObj = store.getSnapshot()) => JSON.parse(JSON.stringify(obj))
 
   const hydrateStore = async () => {
     try {
@@ -57,10 +63,9 @@ export function persist(argA: StateObj | Reducer, argB?: StateObj) {
     }
   }
 
-  const saveToStorage = async (toSaveState = state.get()) => {
+  const saveToStorage = async (toSaveState = copyObj()) => {
     let toSave: StateObj = {}
 
-    config.blacklist.push('_status')
     Object.keys(toSaveState).forEach(key => {
       if (config.blacklist.includes(key)) return
       toSave[key] = toSaveState[key]
@@ -72,15 +77,14 @@ export function persist(argA: StateObj | Reducer, argB?: StateObj) {
   }
 
   hydrateStore().then((persistedState: StateObj | null | undefined) => {
-    let state: StateCopy = store.createStateCopy()
 
     if (!persistedState) {
       saveToStorage()
-      state.set({ _status: true })
+      state._status = true
       return
     }
 
-    let currentState: StateObj = JSON.parse(JSON.stringify(state))
+    let currentState: StateObj = copyObj()
     let toSet: StateObj
 
     if (
@@ -103,42 +107,23 @@ export function persist(argA: StateObj | Reducer, argB?: StateObj) {
     }
 
     delete toSet.version
-    state.set({ ...toSet, _status: true })
+    store.setStateImpl({ ...toSet, _status: true })
   })
 
   store.subscribe(saveToStorage)
 
-  let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
-    let selectorFn =
-      typeof selector === 'string' ? (s: StateObj) => s[selector] : selector
-    return useSyncExternalStoreWithSelector(
-      store.subscribe,
-      store.getSnapshot,
-      store.getSnapshot,
-      selectorFn,
-      equalityFn
-    )
-  }
+  let hook = () => useStore(store)
 
   const clearStorage = async () => {
     await config.storage.removeItem(config.key)
   }
 
-  const dispatch = (action: object) => {
-    let nextState =
-      typeof reducer === 'function' ? reducer(state.get(), action) : null
-    if (nextState && Object.keys(nextState).length) {
-      state.set(nextState)
-    }
-  }
-
   Object.assign(hook, {
     subscribe: store.subscribe,
-    state: store.createStateCopy(),
+    state: store.getProxiedState(),
     persist: {
       clearStorage
-    },
-    ...(reducer ? { dispatch } : {})
+    }
   })
 
   return hook

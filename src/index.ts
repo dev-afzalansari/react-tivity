@@ -1,1 +1,1 @@
-export { create, reduce } from './apis'
+export { create, reduce, persist } from './apis'

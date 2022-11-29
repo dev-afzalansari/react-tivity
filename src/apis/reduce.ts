@@ -14,8 +14,8 @@ export function reduce(reducer: any, arg: StateObj | Initializer) {
     }
   }
 
-  const dispatch = (state: StateObj, action: any) => {
-    const nextState = reducer(JSON.parse(JSON.stringify(state)), action)
+  const dispatch = (_: StateObj, action: any) => {
+    const nextState = reducer(JSON.parse(JSON.stringify(store.getSnapshot())), action)
     if (nextState && Object.keys(nextState).length) {
       store.setStateImpl(nextState)
     }
