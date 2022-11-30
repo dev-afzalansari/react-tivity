@@ -285,9 +285,7 @@ persist.clearStorage()    // clears the storage assigned to useCount
 ```
 
 # proxy
-`proxy` is a middleware that allows you to proxy state object passed in state setter methods. It improves **Code Maintainability** and solves problem
-such as **Changing nested States**. You can still use `state.set` & `state.get` methods but if you mutate state object you will get your state updated.
-You can use proxy only with [create](#create) or [persist](#persist). You can proxy every method or just a single method as shown below.
+`proxy` is a middleware that allows you to proxy state object passed in state setter methods. You can still use `state.set` & `state.get` methods but if you mutate state object you will get your state updated. You can use proxy only with [create](#create) or [persist](#persist). You can proxy every method or just a single method as shown below.
 
 ```javascript
 import { create, proxy } from 'react-tivity'
