@@ -2,15 +2,24 @@ import React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 
 import { reduce } from '..'
-import type { StateObj } from '../utils'
 
 describe('reduce tests', () => {
-  let initObj = () => ({
+  type State = {
+    count: number
+    title: string
+  }
+
+  type Action = {
+    type: string
+    title?: string
+  }
+
+  let initObj = (): State => ({
     count: 0,
     title: 'nothing'
   })
 
-  function reducer(state: StateObj, action: any) {
+  function reducer(state: State, action: Action) {
     switch (action.type) {
       case 'inc':
         return {
@@ -25,10 +34,10 @@ describe('reduce tests', () => {
           title: action.title
         }
     }
-    throw Error('unknow action', action.type)
+    throw Error(`Unknown Action ${action.type}`)
   }
 
-  let useHook: any
+  let useHook = reduce(reducer, initObj)
 
   beforeEach(() => {
     useHook = reduce(reducer, initObj)

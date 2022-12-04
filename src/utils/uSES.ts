@@ -1,10 +1,10 @@
 import useSyncExternalStoreExports from 'use-sync-external-store/shim/with-selector.js'
-import type { StateObj } from './initStore'
+import type { Obj } from './types'
 import { useRef } from 'react'
 
 const { useSyncExternalStoreWithSelector } = useSyncExternalStoreExports
 
-export function useStore(store: any) {
+export function useStore<TState extends Obj>(store: any) {
   const stateDepRefs = useRef<string[]>([])
 
   const isObject = (x: any) => {
@@ -34,8 +34,8 @@ export function useStore(store: any) {
     store.subscribe,
     store.getSnapshot,
     store.getSnapshot,
-    (s: StateObj) => s,
-    (prev: StateObj, next: StateObj) => {
+    (s: TState) => s,
+    (prev: Obj, next: Obj) => {
       for (let slice in prev) {
         if (stateDepRefs.current.includes(slice)) {
           if (!isEqual(prev[slice], next[slice])) {
@@ -48,7 +48,7 @@ export function useStore(store: any) {
   )
 
   const handler = {
-    get(obj: StateObj, prop: string) {
+    get(obj: TState, prop: string) {
       if (
         !stateDepRefs.current.includes(prop) &&
         typeof obj[prop] !== 'function'

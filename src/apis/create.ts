@@ -1,16 +1,18 @@
 import { initStore, useStore } from '../utils'
-import type { StateObj, Initializer } from '../utils'
+import type { Obj, State, CreateHook } from '../utils'
 
-export function create(arg: StateObj | Initializer) {
-  const initObj: StateObj = typeof arg === 'function' ? arg() : arg
-  const store = initStore(initObj)
+export function create<StateObj extends Obj>(
+  arg: StateObj | (() => StateObj)
+): CreateHook<StateObj> {
+  const initObj = typeof arg === 'function' ? arg() : arg
+  const store = initStore<State<StateObj>>(initObj)
 
-  let hook: any = () => useStore(store)
+  const hook = () => useStore<StateObj>(store)
 
-  Object.assign(hook, {
+  const useHook = Object.assign(hook, {
     subscribe: store.subscribe,
     state: store.getProxiedState()
   })
 
-  return hook
+  return useHook
 }

@@ -4,6 +4,7 @@
   "description": "State solution for React",
   "private": true,
   "main": "./dist/index.js",
+  "types": "./dist/esm/index.d.ts",
   "files": [
     "dist/",
     "README.md",

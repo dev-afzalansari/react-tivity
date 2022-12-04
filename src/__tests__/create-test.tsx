@@ -2,26 +2,33 @@ import React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 
 import { create } from '..'
-import { StateObj } from '../utils'
 
 describe('create tests', () => {
-  let initObj = (): StateObj => ({
+  type State = {
+    count: number
+    title: string
+    inc: (state: State) => void
+    dec: (state: State) => void
+    setTitle: (state: State, newTitle: string) => void
+  }
+
+  const initObj = (): State => ({
     count: 0,
-    inc: (state: any) => state.count++,
-    dec: (state: any) => state.count--,
+    inc: state => state.count++,
+    dec: state => state.count--,
     title: 'nothing',
-    setTitle: (state: any, newTitle: string) => {
+    setTitle: (state, newTitle) => {
       state.title = newTitle
     }
   })
 
-  let useHook: any
+  let useHook = create(initObj)
 
   beforeEach(() => {
     useHook = create(initObj)
   })
 
-  test('returns the selected state slices', async () => {
+  test('Returns the selected state slices', async () => {
     function Component() {
       let { count, title } = useHook()
       return (
@@ -38,7 +45,7 @@ describe('create tests', () => {
     await findByText('nothing')
   })
 
-  test('setter methods set the state', async () => {
+  test('Setter methods set the state', async () => {
     function Component() {
       let { count, title, inc, dec, setTitle } = useHook()
       return (
@@ -69,7 +76,7 @@ describe('create tests', () => {
     await findByText('-1')
   })
 
-  test('updates the right components', async () => {
+  test('Updates the right components', async () => {
     // It should rerender only when count changes
     function Count() {
       let { count } = useHook()
@@ -139,7 +146,7 @@ describe('create tests', () => {
     await findByText('ControlRendered: 1')
   })
 
-  test('can get access to state object outside of components', () => {
+  test('Can get access to state object outside of components', () => {
     let state = useHook.state
 
     expect(state.count).toBe(0)

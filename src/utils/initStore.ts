@@ -1,20 +1,16 @@
-export interface StateObj {
-  [key: string]: any
-}
+import type { Obj } from './types'
 
-export type Initializer = () => StateObj
-
-export function initStore(initObj: StateObj) {
+export function initStore<State>(initObj: Obj) {
   const subscribers = new Set<() => void | any>()
 
-  const setStateImpl = (nextState: StateObj) => {
+  const setStateImpl = (nextState: Obj) => {
     state = Object.assign({}, state, nextState)
     subscribers.forEach(cb => cb())
   }
 
   const setState = (method: any, args: any) => method(proxiedState, ...args)
 
-  let state: StateObj = {}
+  let state: Obj = {}
 
   // mounting initial state
   Object.keys(initObj).forEach(key => {
@@ -32,8 +28,8 @@ export function initStore(initObj: StateObj) {
     return () => subscribers.delete(cb)
   }
 
-  const proxiedState = (() => {
-    let stateCopy: StateObj = JSON.parse(JSON.stringify(getSnapshot()))
+  const proxiedState = ((): State => {
+    let stateCopy = JSON.parse(JSON.stringify(getSnapshot()))
 
     Object.keys(state).forEach(key => {
       if (typeof state[key] === 'function') {
@@ -42,7 +38,7 @@ export function initStore(initObj: StateObj) {
     })
 
     const handler = {
-      get(obj: StateObj, prop: string): any {
+      get(obj: Obj, prop: string): any {
         if (prop === 'isProxied') return true
 
         if (typeof obj[prop] === 'object' && !obj[prop].isProxied) {
@@ -51,7 +47,7 @@ export function initStore(initObj: StateObj) {
 
         return obj[prop]
       },
-      set(obj: StateObj, prop: string, value: any) {
+      set(obj: Obj, prop: string, value: any) {
         obj[prop] = value
         if (Object.keys(obj).some(key => typeof obj[key] === 'function'))
           setStateImpl(obj)
@@ -59,9 +55,7 @@ export function initStore(initObj: StateObj) {
       }
     }
 
-    const proxied = new Proxy(stateCopy, handler)
-
-    return proxied
+    return new Proxy(stateCopy, handler)
   })()
 
   return {

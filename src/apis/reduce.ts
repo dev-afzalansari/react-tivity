@@ -1,7 +1,10 @@
 import { initStore, useStore } from '../utils'
-import type { StateObj, Initializer } from '../utils'
+import type { Obj, State, Reducer, ReduceHook } from '../utils'
 
-export function reduce(reducer: any, arg: StateObj | Initializer) {
+export function reduce<TState extends Obj, Action>(
+  reducer: Reducer<TState, Action>,
+  arg: TState | (() => TState)
+): ReduceHook<TState, Action> {
   // Validate initObj to not to contain methods
   let initObj = typeof arg === 'function' ? arg() : arg
   let isValidObj = Object.keys(initObj).every(
@@ -14,21 +17,28 @@ export function reduce(reducer: any, arg: StateObj | Initializer) {
     }
   }
 
-  const dispatch = (_: StateObj, action: any) => {
-    const nextState = reducer(JSON.parse(JSON.stringify(store.getSnapshot())), action)
+  const dispatch = (_: TState, action: Action) => {
+    const nextState = reducer(
+      JSON.parse(JSON.stringify(store.getSnapshot())),
+      action
+    )
     if (nextState && Object.keys(nextState).length) {
       store.setStateImpl(nextState)
     }
   }
 
-  const store = initStore({ ...initObj, dispatch })
+  const store = initStore<State<TState & { dispatch: typeof dispatch }>>({
+    ...initObj,
+    dispatch
+  })
 
-  let hook: any = () => useStore(store)
+  const hook = () =>
+    useStore<State<TState & { dispatch: typeof dispatch }>>(store)
 
-  Object.assign(hook, {
+  const useHook = Object.assign(hook, {
     subscribe: store.subscribe,
     state: store.getProxiedState()
   })
 
-  return hook
+  return useHook
 }

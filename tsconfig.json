@@ -1,6 +1,9 @@
 {
   "compilerOptions": {
     "target": "ESNext",
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "declarationDir": "dist",
     "strict": true,
     "jsx": "react",
     "moduleResolution": "Node",

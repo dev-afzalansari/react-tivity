@@ -1,9 +1,9 @@
-import type { StateObj } from './initStore'
+import type { Obj } from './types'
 
 type StorageType = 'local' | 'session'
 
 export interface Storage {
-  setItem: (key: string, value: StateObj) => Promise<unknown>
+  setItem: (key: string, value: Obj) => Promise<unknown>
   getItem: (key: string) => Promise<unknown>
   removeItem: (key: string) => Promise<unknown>
 }
@@ -48,7 +48,7 @@ export function initStorage(type: StorageType): Storage | NoopStorage {
   }
 
   return {
-    setItem: (key: string, value: StateObj) =>
+    setItem: (key: string, value: Obj) =>
       new Promise(resolve => {
         storage.setItem(key, value)
         resolve(true)
