@@ -1,54 +1,58 @@
-import useSyncExternalStoreExports from 'use-sync-external-store/shim/with-selector.js'
+import { useSyncExternalStore } from 'use-sync-external-store/shim/index.js'
 import type { Obj } from './types'
-import { useRef } from 'react'
+import { useRef, useMemo } from 'react'
 
-const { useSyncExternalStoreWithSelector } = useSyncExternalStoreExports
+const isObject = (x: any) => {
+  return x ? (typeof x === 'object' ? true : false) : false
+}
 
-export function useStore<TState extends Obj>(store: any) {
+const isDeepEqual = (a: any, b: any) => {
+  const sameType = typeof a === typeof b ? true : false
+  let equal = true
+  if (sameType && isObject(b)) {
+    const bKeys = Object.keys(b)
+
+    bKeys.forEach(key => {
+      if (!isObject(b[key])) {
+        if (a[key] !== b[key]) equal = false
+      } else {
+        if (!isDeepEqual(a[key], b[key])) equal = false
+      }
+    })
+
+    return equal
+  }
+  return a === b
+}
+
+export function useStore<TState extends Obj>(store: any): TState {
   const stateDepRefs = useRef<string[]>([])
 
-  const isObject = (x: any) => {
-    return x ? (typeof x === 'object' ? true : false) : false
-  }
+  const isEqual = (prev: Obj, next: Obj) =>
+    stateDepRefs.current.every(
+      slice => isDeepEqual(prev[slice], next[slice]) === true
+    )
 
-  const isEqual = (a: any, b: any) => {
-    const sameType = typeof a === typeof b ? true : false
-    let equal = true
-    if (sameType && isObject(a)) {
-      const aKeys = Object.keys(a)
+  const getSnapshot = useMemo(() => {
+    let memoized = store.getSnapshot()
+    return () => {
+      let current = store.getSnapshot()
+      return Object.is(memoized, current) ? memoized : (memoized = current)
+    }
+  }, [store.getSnapshot()])
 
-      aKeys.forEach(key => {
-        if (!isObject(a[key])) {
-          if (a[key] !== b[key]) equal = false
-        } else {
-          if (!isEqual(a[key], b[key])) equal = false
-        }
+  const state = useSyncExternalStore(
+    cb => {
+      return store.subscribe((prev: Obj, next: Obj) => {
+        if (!isEqual(prev, next)) cb()
       })
-
-      return equal
-    }
-    return a === b
-  }
-
-  const state = useSyncExternalStoreWithSelector(
-    store.subscribe,
-    store.getSnapshot,
-    store.getSnapshot,
-    (s: TState) => s,
-    (prev: Obj, next: Obj) => {
-      for (let slice in prev) {
-        if (stateDepRefs.current.includes(slice)) {
-          if (!isEqual(prev[slice], next[slice])) {
-            return false
-          }
-        }
-      }
-      return true
-    }
+    },
+    getSnapshot,
+    getSnapshot
   )
 
   const handler = {
-    get(obj: TState, prop: string) {
+    get(obj: Obj, prop: string) {
       if (
         !stateDepRefs.current.includes(prop) &&
         typeof obj[prop] !== 'function'

@@ -1,11 +1,13 @@
 import type { Obj } from './types'
 
 export function initStore<State>(initObj: Obj) {
-  const subscribers = new Set<() => void | any>()
+  const subscribers = new Set<(prev: Obj, next: Obj) => void | any>()
+  const copyObj = (obj: Obj = getSnapshot()) => JSON.parse(JSON.stringify(obj))
 
   const setStateImpl = (nextState: Obj) => {
-    state = Object.assign({}, state, nextState)
-    subscribers.forEach(cb => cb())
+    state = Object.assign({}, state, copyObj(nextState))
+    subscribers.forEach(cb => cb(prevState, state))
+    prevState = state
   }
 
   const setState = (method: any, args: any) => method(proxiedState, ...args)
@@ -21,6 +23,7 @@ export function initStore<State>(initObj: Obj) {
     }
   })
 
+  let prevState = state
   const getSnapshot = () => state
 
   const subscribe = (cb: () => void | any) => {
@@ -29,7 +32,7 @@ export function initStore<State>(initObj: Obj) {
   }
 
   const proxiedState = ((): State => {
-    let stateCopy = JSON.parse(JSON.stringify(getSnapshot()))
+    let stateCopy = copyObj()
 
     Object.keys(state).forEach(key => {
       if (typeof state[key] === 'function') {
@@ -49,8 +52,7 @@ export function initStore<State>(initObj: Obj) {
       },
       set(obj: Obj, prop: string, value: any) {
         obj[prop] = value
-        if (Object.keys(obj).some(key => typeof obj[key] === 'function'))
-          setStateImpl(obj)
+        setStateImpl(stateCopy)
         return true
       }
     }
