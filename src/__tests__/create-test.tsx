@@ -1,123 +1,85 @@
-import React, { ReactNode } from 'react'
+import React from 'react'
 import { render, fireEvent } from '@testing-library/react'
 
 import { create } from '..'
-import { StateCopy, StateObj } from '../inits/initStore'
 
-describe('tests with store methods', () => {
-  let initObj = (): StateObj => ({
+describe('create tests', () => {
+  type State = {
+    count: number
+    title: string
+    inc: (state: State) => void
+    dec: (state: State) => void
+    setTitle: (state: State, newTitle: string) => void
+  }
+
+  const initObj = (): State => ({
     count: 0,
-    inc: (state: StateCopy) => ({ count: state.count + 1 }),
-    dec: (state: StateCopy) => state.set({ count: state.count - 1 }),
+    inc: state => state.count++,
+    dec: state => state.count--,
     title: 'nothing',
-    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle })
+    setTitle: (state, newTitle) => {
+      state.title = newTitle
+    }
   })
 
-  let useStore: any
+  let useHook = create(initObj)
 
   beforeEach(() => {
-    useStore = create(initObj())
+    useHook = create(initObj)
   })
 
-  afterEach(() => {
-    useStore = null
-  })
-
-  test('store selector returns selected state', async () => {
+  test('Returns the selected state slices', async () => {
     function Component() {
-      let title = useStore((state: StateObj) => state.title)
-      return <h1>{title}</h1>
-    }
-
-    let { findByText } = render(<Component />)
-
-    await findByText('nothing')
-  })
-
-  test('returns the slice with only slice name', async () => {
-    function Component() {
-      let title = useStore('title')
-      return <h1>{title}</h1>
-    }
-
-    let { findByText } = render(<Component />)
-
-    await findByText('nothing')
-  })
-
-  test('store selector returns state object if no selector passed', async () => {
-    function Component() {
-      let { title } = useStore()
-      return <h1>{title}</h1>
-    }
-
-    let { findByText } = render(<Component />)
-
-    await findByText('nothing')
-  })
-
-  test('state setter methods set the state', async () => {
-    function Component() {
-      let count = useStore((state: StateObj) => state.count)
-      let inc = useStore((state: StateObj) => state.inc)
+      let { count, title } = useHook()
       return (
-        <>
-          <h1>{count}</h1>
+        <div>
+          <div>{count}</div>
+          <div>{title}</div>
+        </div>
+      )
+    }
+
+    let { findByText } = render(<Component />)
+
+    await findByText('0')
+    await findByText('nothing')
+  })
+
+  test('Setter methods set the state', async () => {
+    function Component() {
+      let { count, title, inc, dec, setTitle } = useHook()
+      return (
+        <div>
+          <div>{count}</div>
+          <div>{title}</div>
           <button onClick={inc}>inc</button>
-        </>
-      )
-    }
-
-    let { findByText, getByText } = render(<Component />)
-
-    await findByText('0')
-    fireEvent.click(getByText('inc'))
-    await findByText('1')
-  })
-
-  test('setState action accepts arguments', async () => {
-    let newTitle = 'something'
-
-    function Component() {
-      let title = useStore((state: StateObj) => state.title)
-      let setTitle = useStore((state: StateObj) => state.setTitle)
-
-      return (
-        <>
-          <h1>{title}</h1>
-          <button onClick={() => setTitle(newTitle)}>change</button>
-        </>
-      )
-    }
-
-    let { findByText, getByText } = render(<Component />)
-
-    await findByText('nothing')
-    fireEvent.click(getByText('change'))
-    await findByText(newTitle)
-  })
-
-  test('setting state with state.set', async () => {
-    function Component() {
-      let { count, dec } = useStore()
-      return (
-        <>
-          <h1>{count}</h1>
           <button onClick={dec}>dec</button>
-        </>
+          <button onClick={() => setTitle('something')}>change</button>
+        </div>
       )
     }
 
     let { findByText, getByText } = render(<Component />)
 
     await findByText('0')
+    await findByText('nothing')
+
+    fireEvent.click(getByText('inc'))
+    fireEvent.click(getByText('change'))
+
+    await findByText('1')
+    await findByText('something')
+
     fireEvent.click(getByText('dec'))
+    fireEvent.click(getByText('dec'))
+
     await findByText('-1')
   })
 
-  test('updates the subscribed components only', async () => {
+  test('Updates the right components', async () => {
+    // It should rerender only when count changes
     function Count() {
-      let count = useStore((state: StateObj) => state.count)
+      let { count } = useHook()
       let rendered = React.useRef(0)
       rendered.current++
 
@@ -129,8 +91,9 @@ describe('tests with store methods', () => {
       )
     }
 
+    // It should rerender only when title changes
     function Title() {
-      let title = useStore('title')
+      let { title } = useHook()
       let rendered = React.useRef(0)
       rendered.current++
 
@@ -142,8 +105,9 @@ describe('tests with store methods', () => {
       )
     }
 
+    // Since it is only consuming methods it should not rerender on any changes
     function Control() {
-      let { inc, dec, setTitle } = useStore()
+      let { inc, dec, setTitle } = useHook()
       let rendered = React.useRef(0)
       rendered.current++
 
@@ -173,72 +137,45 @@ describe('tests with store methods', () => {
 
     await findByText('CountRendered: 2')
     await findByText('TitleRendered: 1')
-    await findByText('ControlRendered: 2')
+    await findByText('ControlRendered: 1')
 
     fireEvent.click(getByText('change'))
 
     await findByText('CountRendered: 2')
     await findByText('TitleRendered: 2')
-    await findByText('ControlRendered: 3')
-  })
-})
-
-describe('tests with store apis', () => {
-  let initObj = (): StateObj => ({
-    count: 0,
-    inc: (state: StateCopy) => ({ count: state.count + 1 }),
-    dec: (state: StateCopy) => state.set({ count: state.count - 1 }),
-    title: 'nothing',
-    setTitle: (_state: StateCopy, newTitle: string) => ({ title: newTitle })
+    await findByText('ControlRendered: 1')
   })
 
-  let useStore: any
+  test('Can get access to state object outside of components', () => {
+    let state = useHook.state
 
-  beforeEach(() => {
-    useStore = create(initObj())
-  })
-
-  afterEach(() => {
-    useStore = null
-  })
-
-  test('can get access to state object', async () => {
-    let state = useStore.state
-
-    expect(state.get('count')).toBe(0)
-    expect(state.get('title')).toBe('nothing')
+    expect(state.count).toBe(0)
+    expect(state.title).toBe('nothing')
 
     state.inc()
 
-    expect(state.get('count')).toBe(1)
+    expect(state.count).toBe(1)
 
     state.dec()
     state.dec()
 
-    expect(state.get('count')).toBe(-1)
+    expect(state.count).toBe(-1)
 
-    state.set({ count: 10 })
-    state.set({ title: 'something' })
+    state.count = 10
+    state.title = 'something'
 
-    expect(state.get().count).toBe(10)
-    expect(state.get().title).toBe('something')
+    expect(state.count).toBe(10)
+    expect(state.title).toBe('something')
   })
 
-  test('can register a callback', () => {
-    let mockCb = jest.fn()
-    let state = useStore.state
+  test('registers a callback', () => {
+    const cb = jest.fn()
+    const state = useHook.state
 
-    useStore.subscribe(mockCb)
+    useHook.subscribe(cb)
     state.inc()
 
-    expect(mockCb).toHaveBeenCalled()
-  })
-
-  test('accepts initializer function which returns object', () => {
-    let useTestStore: any = create(initObj)
-    let state = useTestStore.state
-
-    expect(state.get().count).toBe(0)
-    expect(state.get().title).toBe('nothing')
+    expect(cb).toHaveBeenCalled()
+    expect(cb).toHaveBeenCalledTimes(1)
   })
 })

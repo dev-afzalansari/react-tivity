@@ -7,7 +7,7 @@ import commonjs from '@rollup/plugin-commonjs'
 const babelConfig = require('./babel')
 
 const isExternal = function (id) {
-  return id.startsWith('use-sync-external-store')
+  return id.startsWith('use-sync-external-store') || id.startsWith('react')
 }
 
 function esmConfig(file) {

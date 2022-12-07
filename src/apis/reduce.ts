@@ -1,10 +1,11 @@
-import { useSyncExternalStoreWithSelector } from '../uSES'
-import initStore from '../inits/initStore'
+import { initStore, useStore } from '../utils'
+import type { Obj, State, Reducer, ReduceHook } from '../utils'
 
-import { StateObj, Initializer, Hook } from '../inits/initStore'
-
-export default function reduce(reducer: any, arg: StateObj | Initializer) {
-  // validate initObj to not to contain methods
+export function reduce<TState extends Obj, Action>(
+  reducer: Reducer<TState, Action>,
+  arg: TState | (() => TState)
+): ReduceHook<TState, Action> {
+  // Validate initObj to not to contain methods
   let initObj = typeof arg === 'function' ? arg() : arg
   let isValidObj = Object.keys(initObj).every(
     key => typeof initObj[key] !== 'function'
@@ -16,34 +17,28 @@ export default function reduce(reducer: any, arg: StateObj | Initializer) {
     }
   }
 
-  const store = initStore(initObj)
-  const state = store.createStateCopy()
-
-  const dispatch = (action: object) => {
-    let nextState = reducer(state.get(), action)
+  const dispatch = (_: TState, action: Action) => {
+    const nextState = reducer(
+      JSON.parse(JSON.stringify(store.getSnapshot())),
+      action
+    )
     if (nextState && Object.keys(nextState).length) {
-      state.set(nextState)
+      store.setStateImpl(nextState)
     }
   }
 
-  let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
-    let selectorFn =
-      typeof selector === 'string' ? (s: StateObj) => s[selector] : selector
-
-    return useSyncExternalStoreWithSelector(
-      store.subscribe,
-      store.getSnapshot,
-      store.getSnapshot,
-      selectorFn,
-      equalityFn
-    )
-  }
-
-  Object.assign(hook, {
-    subscribe: store.subscribe,
-    state: store.createStateCopy(),
-    dispatch: dispatch
+  const store = initStore<State<TState & { dispatch: typeof dispatch }>>({
+    ...initObj,
+    dispatch
   })
 
-  return hook
+  const hook = () =>
+    useStore<State<TState & { dispatch: typeof dispatch }>>(store)
+
+  const useHook = Object.assign(hook, {
+    subscribe: store.subscribe,
+    state: store.getProxiedState()
+  })
+
+  return useHook
 }

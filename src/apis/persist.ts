@@ -1,16 +1,14 @@
-import { useSyncExternalStoreWithSelector } from '../uSES'
-import initStore from '../inits/initStore'
-import initStorage from '../inits/initStorage'
+import { initStore, initStorage, useStore } from '../utils'
+import type { Obj, State, Reducer, AssignInternal, PersistHook } from '../utils'
 
-import type { StateObj, StateCopy, Hook } from '../inits/initStore'
+export function persist<TState extends Obj, TArgB = undefined, Action = any>(
+  argA: TState | (() => TState) | Reducer<TState, Action>,
+  argB?: TArgB
+): PersistHook<TState, Action, TArgB> {
+  const arg = argB ? (argB as () => TState) : (argA as () => TState)
+  const reducer = argB ? argA : null
 
-type Reducer = (state: StateObj, action: any) => any
-
-export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
-  let arg = argB ? argB : argA
-  let reducer = argB ? argA : null
-
-  let initObj = typeof arg === 'function' ? arg() : arg
+  let initObj = typeof arg === 'function' ? arg() : (arg as Obj)
 
   if (reducer && typeof reducer === 'function') {
     let isValidObj = Object.keys(initObj).every(
@@ -33,18 +31,33 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
 
   const config = {
     storage: storage,
-    serialize: (state: StateObj) => JSON.stringify(state),
+    serialize: (state: TState) => JSON.stringify(state),
     deserialize: (state: string) => JSON.parse(state),
     blacklist: [],
     version: 0,
     ...initObj.config
   }
 
+  const dispatch = (_: TState, action: Action) => {
+    const nextState =
+      typeof reducer === 'function'
+        ? reducer(copyObj(store.getSnapshot()), action)
+        : null
+    if (nextState && Object.keys(nextState).length) {
+      store.setStateImpl(nextState)
+    }
+  }
+
   delete initObj.config
   initObj._status = false
+  config.blacklist.push('_status')
 
-  const store = initStore(initObj)
-  const state = store.createStateCopy()
+  const store = initStore<
+    State<Omit<TState, 'config'> & AssignInternal<TArgB, TState, Action>>
+  >({ ...initObj, ...(reducer ? { dispatch } : {}) })
+  const state = store.getProxiedState() as Obj
+  const copyObj = (obj: Obj = store.getSnapshot()) =>
+    JSON.parse(JSON.stringify(obj))
 
   const hydrateStore = async () => {
     try {
@@ -57,10 +70,9 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
     }
   }
 
-  const saveToStorage = async (toSaveState = state.get()) => {
-    let toSave: StateObj = {}
+  const saveToStorage = async (toSaveState = copyObj()) => {
+    let toSave = {} as Obj
 
-    config.blacklist.push('_status')
     Object.keys(toSaveState).forEach(key => {
       if (config.blacklist.includes(key)) return
       toSave[key] = toSaveState[key]
@@ -71,17 +83,15 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
     await config.storage.setItem(config.key, value)
   }
 
-  hydrateStore().then((persistedState: StateObj | null | undefined) => {
-    let state: StateCopy = store.createStateCopy()
-
+  hydrateStore().then((persistedState: TState | null | undefined) => {
     if (!persistedState) {
       saveToStorage()
-      state.set({ _status: true })
+      state._status = true
       return
     }
 
-    let currentState: StateObj = JSON.parse(JSON.stringify(state))
-    let toSet: StateObj
+    let currentState: Obj = copyObj()
+    let toSet: Obj
 
     if (
       typeof persistedState.version !== 'undefined' &&
@@ -103,43 +113,27 @@ export default function persist(argA: StateObj | Reducer, argB?: StateObj) {
     }
 
     delete toSet.version
-    state.set({ ...toSet, _status: true })
+    store.setStateImpl({ ...toSet, _status: true })
   })
 
   store.subscribe(saveToStorage)
 
-  let hook: Hook = (selector = (s: StateObj) => s, equalityFn?: any) => {
-    let selectorFn =
-      typeof selector === 'string' ? (s: StateObj) => s[selector] : selector
-    return useSyncExternalStoreWithSelector(
-      store.subscribe,
-      store.getSnapshot,
-      store.getSnapshot,
-      selectorFn,
-      equalityFn
-    )
-  }
+  const hook = () =>
+    useStore<
+      State<Omit<TState, 'config'> & AssignInternal<TArgB, TState, Action>>
+    >(store)
 
   const clearStorage = async () => {
     await config.storage.removeItem(config.key)
   }
 
-  const dispatch = (action: object) => {
-    let nextState =
-      typeof reducer === 'function' ? reducer(state.get(), action) : null
-    if (nextState && Object.keys(nextState).length) {
-      state.set(nextState)
-    }
-  }
-
-  Object.assign(hook, {
+  const useHook = Object.assign(hook, {
     subscribe: store.subscribe,
-    state: store.createStateCopy(),
+    state: store.getProxiedState(),
     persist: {
       clearStorage
-    },
-    ...(reducer ? { dispatch } : {})
+    }
   })
 
-  return hook
+  return useHook
 }
