@@ -116,7 +116,7 @@ export function persist<TState extends Obj, TArgB = undefined, Action = any>(
     store.setStateImpl({ ...toSet, _status: true })
   })
 
-  store.subscribe(saveToStorage)
+  store.subscribe(() => saveToStorage())
 
   const hook = () =>
     useStore<

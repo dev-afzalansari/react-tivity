@@ -1,6 +1,6 @@
 {
   "name": "react-tivity",
-  "version": "1.0.0-beta.0",
+  "version": "1.0.0-beta.1",
   "description": "State solution for React",
   "private": true,
   "main": "./dist/index.js",

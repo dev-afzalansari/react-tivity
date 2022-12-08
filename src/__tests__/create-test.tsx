@@ -179,3 +179,44 @@ describe('create tests', () => {
     expect(cb).toHaveBeenCalledTimes(1)
   })
 })
+
+test('Sets state asynchronously', async () => {
+  type State = {
+    values: any
+    setValues: (state: State) => void
+  }
+
+  const requestData = () =>
+    new Promise(resolve => {
+      setTimeout(() => resolve([{ value: 'foo' }, { value: 'bar' }]), 1000)
+    })
+
+  const useHook = create<State>({
+    values: [],
+    setValues: async state => {
+      let res = await requestData()
+      state.values = await res
+    }
+  })
+
+  function Component() {
+    let { values, setValues } = useHook()
+
+    return (
+      <div>
+        <div>
+          {values.length ? `${values[0].value}&${values[1].value}` : 'no value'}
+        </div>
+        <button onClick={setValues}>change</button>
+      </div>
+    )
+  }
+
+  let { findByText, getByText } = render(<Component />)
+
+  await findByText('no value')
+
+  fireEvent.click(getByText('change'))
+
+  await findByText('foo&bar')
+})
