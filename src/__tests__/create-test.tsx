@@ -180,7 +180,56 @@ describe('create tests', () => {
   })
 })
 
-test('Sets state asynchronously', async () => {
+test('Updates the nested state', async () => {
+  type State = {
+    a: {
+      very: {
+        deep: {
+          nested: {
+            value: string
+          }
+        }
+      }
+    }
+    updateValue: (state: State) => void
+  }
+
+  const useHook = create<State>({
+    a: {
+      very: {
+        deep: {
+          nested: {
+            value: 'foo'
+          }
+        }
+      }
+    },
+    updateValue: state => {
+      state.a.very.deep.nested.value = 'bar'
+    }
+  })
+
+  function Component() {
+    let { a, updateValue } = useHook()
+
+    return (
+      <div>
+        <div>{a.very.deep.nested.value}</div>
+        <button onClick={updateValue}>updateValue</button>
+      </div>
+    )
+  }
+
+  let { findByText, getByText } = render(<Component />)
+
+  await findByText('foo')
+
+  fireEvent.click(getByText('updateValue'))
+
+  await findByText('bar')
+})
+
+test('Updates state asynchronously', async () => {
   type State = {
     values: any
     setValues: (state: State) => void

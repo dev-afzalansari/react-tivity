@@ -1,6 +1,6 @@
 import { initStore } from '../../utils'
 
-describe('basic store tests', () => {
+describe('Basic store tests', () => {
   let store: any
 
   beforeEach(() => {
@@ -14,7 +14,7 @@ describe('basic store tests', () => {
     })
   })
 
-  test('returns the expected apis', () => {
+  test('Returns the expected apis', () => {
     expect(store.getSnapshot).toBeDefined()
     expect(store.subscribe).toBeDefined()
     expect(store.getProxiedState).toBeDefined()
@@ -57,7 +57,7 @@ describe('basic store tests', () => {
   })
 })
 
-test('updates the nested state', () => {
+test('Updates the nested state', () => {
   let store = initStore({
     foo: 'foo',
     bar: {
