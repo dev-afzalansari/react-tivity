@@ -35,6 +35,7 @@ export function persist<TState extends Obj, TArgB = undefined, Action = any>(
     deserialize: (state: string) => JSON.parse(state),
     blacklist: [],
     version: 0,
+    migrate: (prev: TState, curr: TState) => curr,
     ...initObj.config
   }
 
