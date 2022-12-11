@@ -7,7 +7,7 @@ import type { Storage, Obj } from '../utils'
 type TempStorage = Partial<Storage>
 
 /* global Promise */
-describe('persist tests', () => {
+describe('Persist tests', () => {
   type State = {
     count: number
     inc: (state: State) => void
@@ -115,7 +115,7 @@ describe('persist tests', () => {
     })
   })
 
-  test('clears the state when called clearStorage with api', async () => {
+  test('Clears the state when called clearStorage with api', async () => {
     let firstTime = JSON.parse((await storage.getItem('@key')) as string)
     expect(firstTime).toEqual({
       count: 0,
@@ -128,7 +128,77 @@ describe('persist tests', () => {
     expect(secondTime).toBeFalsy()
   })
 
-  test('accepts initializer function', () => {
+  test('Updates the right components', async () => {
+    // It should rerender only when count changes
+    function Count() {
+      let { count } = useHook()
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <h1>count: {count}</h1>
+          <h1>CountRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    // It should rerender only when title changes
+    function Title() {
+      let { title } = useHook()
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <h1>count: {title}</h1>
+          <h1>TitleRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    // Since it is only consuming methods it should not rerender on any changes
+    function Control() {
+      let { inc, dec, setTitle } = useHook()
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <button onClick={inc}>inc</button>
+          <button onClick={dec}>dec</button>
+          <button onClick={() => setTitle('something')}>change</button>
+          <h1>ControlRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    let { findByText, getByText } = render(
+      <div>
+        <Count />
+        <Title />
+        <Control />
+      </div>
+    )
+
+    await findByText('CountRendered: 1')
+    await findByText('TitleRendered: 1')
+    await findByText('ControlRendered: 1')
+
+    fireEvent.click(getByText('inc'))
+
+    await findByText('CountRendered: 2')
+    await findByText('TitleRendered: 1')
+    await findByText('ControlRendered: 1')
+
+    fireEvent.click(getByText('change'))
+
+    await findByText('CountRendered: 2')
+    await findByText('TitleRendered: 2')
+    await findByText('ControlRendered: 1')
+  })
+
+  test('Accepts initializer function', () => {
     let useTestHook: any = persist(initObj)
     let state = useTestHook.state
 
@@ -137,7 +207,7 @@ describe('persist tests', () => {
   })
 })
 
-describe('reduce tests', () => {
+describe('Reduce tests', () => {
   type State = {
     count: number
     title: string
@@ -258,6 +328,80 @@ describe('reduce tests', () => {
       title: 'nothing',
       version: 0
     })
+  })
+
+  test('Updates the right components', async () => {
+    // It should rerender only when count changes
+    function Count() {
+      let { count } = useHook()
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <h1>count: {count}</h1>
+          <h1>CountRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    // It should rerender only when title changes
+    function Title() {
+      let { title } = useHook()
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <h1>count: {title}</h1>
+          <h1>TitleRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    // Since it is only consuming dispatch it should not rerender on any changes
+    function Control() {
+      let { dispatch } = useHook()
+      let rendered = React.useRef(0)
+      rendered.current++
+
+      return (
+        <div>
+          <button onClick={() => dispatch({ type: 'inc' })}>inc</button>
+          <button onClick={() => dispatch({ type: 'dec' })}>dec</button>
+          <button
+            onClick={() => dispatch({ type: 'title', title: 'something' })}
+          >
+            change
+          </button>
+          <h1>ControlRendered: {rendered.current}</h1>
+        </div>
+      )
+    }
+
+    let { findByText, getByText } = render(
+      <div>
+        <Count />
+        <Title />
+        <Control />
+      </div>
+    )
+
+    await findByText('CountRendered: 1')
+    await findByText('TitleRendered: 1')
+    await findByText('ControlRendered: 1')
+
+    fireEvent.click(getByText('inc'))
+
+    await findByText('CountRendered: 2')
+    await findByText('TitleRendered: 1')
+    await findByText('ControlRendered: 1')
+
+    fireEvent.click(getByText('change'))
+
+    await findByText('CountRendered: 2')
+    await findByText('TitleRendered: 2')
+    await findByText('ControlRendered: 1')
   })
 
   test('Clears the state when called clearStorage with api', async () => {

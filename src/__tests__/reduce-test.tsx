@@ -3,7 +3,7 @@ import { render, fireEvent } from '@testing-library/react'
 
 import { reduce } from '..'
 
-describe('reduce tests', () => {
+describe('Reduce tests', () => {
   type State = {
     count: number
     title: string
@@ -43,7 +43,7 @@ describe('reduce tests', () => {
     useHook = reduce(reducer, initObj)
   })
 
-  test('returns the selected slices', async () => {
+  test('Returns the selected slices', async () => {
     function Component() {
       let { count, title } = useHook()
 
@@ -97,7 +97,7 @@ describe('reduce tests', () => {
     await findByText('something')
   })
 
-  test('updates the right components', async () => {
+  test('Updates the right components', async () => {
     // It should rerender only when count changes
     function Count() {
       let { count } = useHook()
