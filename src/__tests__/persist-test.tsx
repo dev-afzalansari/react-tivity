@@ -231,7 +231,7 @@ describe('Reduce tests', () => {
     }
   })
 
-  function reducer(state: State, action: Action) {
+  function reducer(state: Omit<State, 'config'>, action: Action) {
     switch (action.type) {
       case 'inc':
         return {

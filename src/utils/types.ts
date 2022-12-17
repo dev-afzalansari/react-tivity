@@ -24,7 +24,7 @@ export type ReduceHook<TState, Action> = (() => State<
   TState & { dispatch: (_: TState, action: Action) => void }
 >) & {
   subscribe: (cb: () => void | any) => () => boolean
-  state: State<TState>
+  state: State<TState & { dispatch: (_: TState, action: Action) => void }>
 }
 
 export type AssignInternal<T, TState, Action> = T extends undefined
