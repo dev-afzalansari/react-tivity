@@ -12,13 +12,13 @@
 
 ### npm
 
-```
+```sh
 npm i react-tivity
 ```
 
 ### yarn
 
-```
+```sh
 yarn add react-tivity
 ```
 
@@ -34,7 +34,7 @@ yarn add react-tivity
 
 # Introduction
 
-Easy and Small state management library for React with Hook based api and zero configuration.
+**Easy** and **Small** state management library for **React** with hooks based api and zero configuration. With `react-tivity` you don't need to pass the selector in the hook you get the whole state that you can destructure and your components will get updated only when the value they are consuming is changed.
 
 * Zero boilerplate.
 * Zero configuration
