@@ -3,7 +3,6 @@
 **State solution for React**
 
 <div>
-  <span><a href='https://npmjs.com/package/react-tivity'><img src='https://badgen.net/badge/icon/npm?icon=npm&label' /></a></span>
   <span><a href='https://npmjs.com/package/react-tivity'><img src='https://badgen.net/npm/v/react-tivity' /></a></span>
   <span><a href='https://bundlephobia.com/package/react-tivity'><img src='https://badgen.net/bundlephobia/minzip/react-tivity' /></a></span>
   <span><a href='https://github.com/dev-afzalansari/react-tivity/blob/main/LICENSE'><img src='https://badgen.net/npm/license/react-tivity' /></a></span>
@@ -23,12 +22,25 @@ npm i react-tivity
 yarn add react-tivity
 ```
 
-# Exports
+# Table of Contents
 
-* [create](#create)
-* [reduce](#reduce)
-* [persist](#persist)
-* [proxy](#proxy)
+- [Introduction](#introduction)
+- [API](#api)
+  - [create](#create)
+  - [reduce](#reduce)
+  - [persist](#persist)
+- [Typescript](#typescript)
+- [License](#license)
+
+# Introduction
+
+Easy and Small state management library for React with Hook based api and zero configuration.
+
+* Zero boilerplate.
+* Zero configuration
+* Small & Easy.
+* Hooks based Api.
+* Typescript Support.
 
 # `create`
 
@@ -41,11 +53,12 @@ import { create } from 'react-tivity'
 ```
 
 Then initialize store by passing `object` or `initializer`
+
 ```javascript
 const useCount = create({
   count: 0,
-  inc: state => ({ count: state.count + 1 }),
-  dec: state => ({ count: state.count - 1 })
+  inc: state => state.count++,
+  dec: state => state.count--
 })
 ```
 
@@ -53,45 +66,13 @@ Usage in react component
 
 ```javascript
 function Counter() {
-  let count = useCount('count') // or useCount(state => state.count)
-  let inc = useCount('inc') // or useCount(state => state.inc)
-  let dec = useCount('dec') // or useCount(state => state.dec)
-  
-  // if no arguments passed in hook it returns whole state object so you can destructure it
-  // let { count, inc, dec } = useCount()
+  let { count, inc, dec } = useCount()
   
   return (
     <div>
       <h1>{count}</h1>
       <button onClick={inc}>Count++</button>
       <button onClick={dec}>Count--</button>
-    </div>
-  )
-}
-```
-Use `set` to handle asynchronous code. Use `get` to get latest state if needed.
-
-```javascript
-const useStore = create({
-  users: [],
-  getUsers: async (state, url) => {
-    let req = await fetch(url)
-    let res = await req.json()
-    state.set({ user: res })    // set for handling asynchronous code
-  },
-  count: 0,
-  inc: state => ({ count: state.get().count + 1 })  // get for retrieving state
-})
-
-function Component() {
-  let { users, getUsers, count,  inc } = useStore()
-  
-  return (
-    <div>
-      {users ? users.map(user => (<h3>{user.name}</h3>)) : null}
-      <button onClick={() => getUsers('https://jsonplaceholder.typicode.com/users')}>List Users</button>
-      <h1>{count}</h1>
-      <button onClick={inc}>Count++</button>
     </div>
   )
 }
@@ -106,9 +87,9 @@ let count = useCount.state
 count.inc()
 count.dec()
 // reading values
-count.get().count
+count.count
 // or setting values
-count.set({ count: count.get().count + 1})
+count.count++
 
 
 // subscribe
@@ -121,8 +102,7 @@ unsubscribe()
 
 # `reduce`
 
-`reduce` takes a `reducer` function as first argument and `object` or `initializer` which returns an `object` as second argument.
-You can pass your state `object` without any method and retrieve dispatch function assigned to `hook` itself as method.
+`reduce` takes a `reducer` function as first argument and `object` or `initializer` which returns an `object` as second argument. You can pass your state `object` without any method and retrieve dispatch function assigned to `hook` itself as method.
 
 [Example on StackBlitz](https://stackblitz.com/edit/react-rlxckr?file=src/App.js)
 
@@ -155,8 +135,7 @@ Usage in react component.
 
 ```javascript
 function Counter() {
-  let count = useCount('count')
-  let countDispatch = useCount.dispatch   // retrieve dispatch from hook
+  let { count, dispatch: countDispatch } = useCount()
   
   return (
     <div>
@@ -167,24 +146,21 @@ function Counter() {
   )
 }
 ```
+
 Some **apis** are assigned to the hook and can be used in or outside of react component.
 
 ```javascript
 // all apis from create such as subscribe and state object are assigned
 
 // dispatch
-let dispatch = useCount.dispatch
+let dispatch = useCount.state.dispatch
 dispatch({ type: 'inc'})
 dispatch({ type: 'dec'})
 ```
 
 # `persist`
 
-`persist` works same as `create` if only one argument is passed if passed two arguments first `reducer` and second `object` it acts as reduce.
-It takes an additional property `config` which won't be saved as a state value.
-It will persist your state `object` in either storage created by itself or the custom storage you provide.
-It accepts asynchronous storage only but for convenience you can pass 'local' or 'session' to create asynhronous localStorage & asyncronous
-sessionStorage respectively.
+`persist` works same as `create` if only one argument is passed if passed two arguments first `reducer` and second `object` it acts as reduce. It takes an additional property `config` which won't be saved as a state value. It will persist your state `object` in either storage created by itself or the custom storage you provide. It accepts asynchronous storage only, but for convenience you can pass 'local' or 'session' to create asynhronous localStorage & asyncronous sessionStorage respectively.
 
 [Example on Stackblitz](https://stackblitz.com/edit/react-nriizz?file=src/App.js)
 
@@ -198,8 +174,8 @@ Then initialize store by passing `object` or `initializer`
 // acts as create
 const useCount = persist({
   count: 0,
-  inc: state => ({ count: state.count + 1 }),
-  dec: state => ({ count: state.count - 1 }),
+  inc: state => state.count++,
+  dec: state => state.count--,
   config: {
     key: '@count' // required,
     storage: 'session' // defaults to 'local'
@@ -219,7 +195,8 @@ const useCount = persist(reducer, {
 ## `config` property
 
 ```javascript
-const useStore = persist({    // First argument reducer you want it to act as `reduce` and then `object` or `initializer`
+const useStore = persist({
+  // First argument reducer you want it to act as `reduce` and then `object` or `initializer`
   // ...
   config: {
     // Only required property of config
@@ -234,7 +211,7 @@ const useStore = persist({    // First argument reducer you want it to act as `r
     blacklist: [],
     // Required if you change your structure of your state otherwise optional, defaults to 0
     version: 0,
-    // Required if you have changed version, So you can migrate your previously saved state values to current one, defaults to none
+    // Required if you have changed version, So you can migrate your previously saved state values to current one. defaults as below.
     migrate: (current, previous) => current
   }
 })
@@ -262,9 +239,9 @@ hydrated.
 ```javascript
 // Note: `_status` property gets set to true even if there was no state saved in the storage.
 function PersistWrapper() {
-  let status = useCount('_status')  // or useCount(state => state._status)
+  let { _status } = useCount()
   
-  if(!status) return <h1>Loading...</h1>
+  if(!_status) return <h1>Loading...</h1>
   
   return <ChildComponent />
 }
@@ -284,43 +261,97 @@ let persist = useCount.persist // or just useCount.persist.clearStorage()
 persist.clearStorage()    // clears the storage assigned to useCount
 ```
 
-# proxy
-`proxy` is a middleware that allows you to proxy state object passed in state setter methods. You can still use `state.set` & `state.get` methods but if you mutate state object you will get your state updated. You can use proxy only with [create](#create) or [persist](#persist). You can proxy every method or just a single method as shown below.
+# Typescript
 
-```javascript
-import { create, proxy } from 'react-tivity'
-```
+## create
 
-Usage while creating hook
+```typescript
+type State = {
+  count: number;
+  inc: (state: State) => void;
+  dec: (state: State) => void;
+}
 
-```javascript
-// proxying every method 
-let useCount = create(proxy({
-  count: 0,
-  inc: state => state.count++,
-  dec: state => state.count--
-}))
-
-// proxying a specific method
-// you need to pass second argument as true
-let useCount = create({
-  count: 0,
-  inc: proxy(state => state.count++, true),  // pass second argument as true to proxy single method
-  dec: state => ({count: state.count - 1})
+const useCount = create<State>({
+  count: number,
+  inc: (state) => state.count++,
+  dec: (state) => state.count--
 })
 ```
 
-# `EqualityFn`
+## reduce
 
-Hook created from any api accepts a second argument too. A `EqualityFn` can be passed to the hook to test certain conditions
-and avoid unnecessary rerendering for example `useCount` hook from above examples.
-
-```javascript
-function Component() {
-  let count = useCount('count', (prevCount, nextCount) => nextCount === 2)  // will not update the component if nextCount is 2
-  
-  return <h1>{count}</h1>
+```typescript
+type State = {
+  count: number;
 }
+
+type Action = {
+  type: string;
+}
+
+function reducer(state: State, action: Action) {
+  //....
+}
+
+const useCount = reduce<State, Action>(reducer, {
+  count: 0,
+})
+
+```
+
+## persist
+
+If using as `create` same as `create` just add config.
+
+```typescript
+type State = {
+  count: number;
+  inc: (state: State) => void;
+  dec: (state: State) => void;
+  config: {
+    key: string;
+    storage: string;
+  }
+}
+
+const useCount = create<State>({
+  count: number,
+  inc: (state) => state.count++,
+  dec: (state) => state.count--,
+  config: {
+    key: '@count',
+    storage: 'session',
+  }
+})
+```
+
+If using as `reduce`.
+```typescript
+type State = {
+  count: number;
+  config: {
+    key: string;
+    storage: string;
+  }
+}
+
+type Action = {
+  type: string;
+}
+
+function reducer(state: Omit<State, 'config'>, action: Action) {
+  //....
+}
+
+// Pass second generic argument as true if you are using persist as reduce
+const useCount = reduce<State, true, Action>(reducer, {
+  count: 0,
+  config: {
+    key: '@count',
+    storage: 'session'
+  }
+})
 ```
 
 # License
