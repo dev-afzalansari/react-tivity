@@ -2,7 +2,6 @@
   "name": "react-tivity",
   "version": "1.0.0",
   "description": "State solution for React",
-  "private": true,
   "main": "./dist/index.js",
   "types": "./dist/esm/index.d.ts",
   "files": [
