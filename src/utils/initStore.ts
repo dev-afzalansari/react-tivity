@@ -1,13 +1,14 @@
 import type { Obj } from './types'
 
-export function initStore<State>(initObj: Obj) {
+export function initStore<TState>(initObj: Obj) {
   const subscribers = new Set<(prev: Obj, next: Obj) => void | any>()
   const copyObj = (obj: Obj = getSnapshot()) => JSON.parse(JSON.stringify(obj))
 
-  const setStateImpl = (nextState: Obj) => {
+  const setStateImpl = (nextState: Obj, directUpdate: boolean = false) => {
     state = Object.assign({}, state, copyObj(nextState))
     subscribers.forEach(cb => cb(prevState, state))
     prevState = state
+    if(directUpdate) Object.assign(proxiedState as {}, state)
   }
 
   const setState = (method: any, args: any) => method(proxiedState, ...args)
@@ -31,7 +32,7 @@ export function initStore<State>(initObj: Obj) {
     return () => subscribers.delete(cb)
   }
 
-  const proxiedState = ((): State => {
+  const proxiedState = ((): TState => {
     let stateCopy = copyObj()
 
     Object.keys(state).forEach(key => {

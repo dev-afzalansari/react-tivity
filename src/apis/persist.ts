@@ -45,7 +45,7 @@ export function persist<TState extends Obj, TArgB = undefined, Action = any>(
         ? reducer(copyObj(store.getSnapshot()), action)
         : null
     if (nextState && Object.keys(nextState).length) {
-      store.setStateImpl(nextState)
+      store.setStateImpl(nextState, true)
     }
   }
 
@@ -114,7 +114,7 @@ export function persist<TState extends Obj, TArgB = undefined, Action = any>(
     }
 
     delete toSet.version
-    store.setStateImpl({ ...toSet, _status: true })
+    store.setStateImpl({ ...toSet, _status: true }, true)
   })
 
   store.subscribe(() => saveToStorage())
