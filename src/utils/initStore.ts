@@ -8,7 +8,7 @@ export function initStore<TState>(initObj: Obj) {
     state = Object.assign({}, state, copyObj(nextState))
     subscribers.forEach(cb => cb(prevState, state))
     prevState = state
-    if(directUpdate) Object.assign(proxiedState as {}, state)
+    if (directUpdate) Object.assign(proxiedState as {}, state)
   }
 
   const setState = (method: any, args: any) => method(proxiedState, ...args)
