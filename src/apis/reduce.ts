@@ -23,7 +23,7 @@ export function reduce<TState extends Obj, Action>(
       action
     )
     if (nextState && Object.keys(nextState).length) {
-      store.setStateImpl(nextState)
+      store.setStateImpl(nextState, true)
     }
   }
 
